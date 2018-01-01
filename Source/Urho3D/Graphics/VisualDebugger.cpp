@@ -213,6 +213,9 @@ void VisualDebugger::DrawDebugGeometry(DebugRenderer* debugRenderer, unsigned in
 
 void VisualDebugger::SetEnabled(bool enabled)
 {
+	if (mEnabled == enabled)
+		return;
+
 	auto i = mDebuggerObjects.Begin();
 	while (i != mDebuggerObjects.End())
 	{
