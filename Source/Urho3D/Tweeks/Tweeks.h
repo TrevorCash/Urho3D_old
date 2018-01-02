@@ -134,6 +134,12 @@ namespace Urho3D
 			return tw->mValue.Get<T>();
 		}
 
+		template <typename T>
+		T Get(String name, String section = "", Tweek** tweek_out = nullptr) {
+			return Get<T>(name, T(), section, tweek_out);
+		}
+
+
 
 	protected:
 
