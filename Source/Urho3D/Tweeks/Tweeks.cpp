@@ -16,6 +16,7 @@ namespace Urho3D {
 	{
 		mTrimTimer.SetTimeoutDuration(mTrimIntervalMs);
 		BeginSection("default section");
+		BeginTweekTime(TWEEK_LIFETIME_DEFAULT_MS);
 
 		SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Tweeks, HandleUpdate));
 	}
@@ -88,6 +89,38 @@ namespace Urho3D {
 		return mSections;
 	}
 
+	void Tweeks::BeginSection(String section)
+	{
+		mCurSectionStack.Push(section);
+	}
+
+	Urho3D::String Tweeks::CurrentSection()
+	{
+		return mCurSectionStack.Back();
+	}
+
+	void Tweeks::EndSection()
+	{
+		if (mCurSectionStack.Size() > 1)//dont pop the default section.
+			mCurSectionStack.Pop();
+	}
+
+	void Tweeks::BeginTweekTime(unsigned int tweekLifeTimeMs)
+	{
+		mTweekTimeStack.Push(tweekLifeTimeMs);
+	}
+
+	unsigned int Tweeks::CurrentTweekTime()
+	{
+		return mTweekTimeStack.Back();
+	}
+
+	void Tweeks::EndTweekTime()
+	{
+		if (mTweekTimeStack.Size() > 1)
+			mTweekTimeStack.Pop();
+	}
+
 	void Tweeks::Clear()
 	{
 		mTweekMap.Clear();
@@ -140,7 +173,7 @@ namespace Urho3D {
 		}
 		else {
 			SharedPtr<Tweek> newTweek = context_->CreateObject<Tweek>();
-			newTweek->mExpirationTimer.SetTimeoutDuration(TWEEK_LIFETIME_DEFAULT_MS);
+			newTweek->mExpirationTimer.SetTimeoutDuration(CurrentTweekTime());
 			if (name.Empty()) {
 				name = Tweek::GetTypeNameStatic();
 			}

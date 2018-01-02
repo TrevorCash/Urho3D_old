@@ -95,20 +95,23 @@ namespace Urho3D
 		//returns the names of all sections
 		StringVector GetSections();
 
-		void BeginSection(String section) {
-			mCurSectionStack.Push(section);
-		}
+		//start a new section
+		void BeginSection(String section);
 
-		String CurrentSection() {
-			return mCurSectionStack.Back();
-		}
+		//returns the current section.
+		String CurrentSection();
 
-		void EndSection() {
-			if(mCurSectionStack.Size() > 1)//dont pop the default section.
-				mCurSectionStack.Pop();
-		}
+		//ends the current section restoring the previous section.
+		void EndSection();
 
+		//starts a new default tweek lifetime.
+		void BeginTweekTime(unsigned int tweekLifeTimeMs);
 
+		//returns the current default tweek time.
+		unsigned int CurrentTweekTime();
+
+		//ends the current tweek time - restoring the previous tweek time.
+		void EndTweekTime();
 
 
 
@@ -156,6 +159,7 @@ namespace Urho3D
 		StringVector mSections;
 
 		StringVector mCurSectionStack;
+		Vector<unsigned int> mTweekTimeStack;
 
 		Timer mExpirationTimer;
 		Timer mTrimTimer;
