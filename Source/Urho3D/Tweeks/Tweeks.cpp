@@ -15,6 +15,7 @@ namespace Urho3D {
 	Tweeks::Tweeks(Context* context) : Object(context)
 	{
 		mTrimTimer.SetTimeoutDuration(mTrimIntervalMs);
+		BeginSection("default section");
 
 		SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Tweeks, HandleUpdate));
 	}
@@ -128,6 +129,9 @@ namespace Urho3D {
 
 	Urho3D::Tweek* Tweeks::GetTweek(String name /*= ""*/, String section /*= ""*/)
 	{
+		if (section.Empty())
+			section = CurrentSection();//use the section stack if section is not specified.
+
 		if (mTweekMap.Contains(name + section))
 		{
 			Tweek* existingTweek = mTweekMap[name + section];
@@ -193,19 +197,16 @@ namespace Urho3D {
 		dest->WriteInt(mExpirationTimer.GetTimeoutDuration());
 
 		dest->WriteVariant(mValue);
-		dest->WriteBool(mIsMaxMin);
 		dest->WriteVariant(mMinValue);
 		dest->WriteVariant(mMaxValue);
 	}
 
 	void Tweek::Load(Deserializer* source)
 	{
-
 		mName = source->ReadString();
 		mSection = source->ReadString();
 		mExpirationTimer.SetTimeoutDuration(source->ReadInt());
 		mValue = source->ReadVariant();
-		mIsMaxMin = source->ReadBool();
 		mMinValue = source->ReadVariant();
 		mMaxValue = source->ReadVariant();
 	}
@@ -221,33 +222,9 @@ namespace Urho3D {
 		mExpirationTimer.Reset();
 	}
 
-	void Tweek::SetMaxValue(Variant maxValue)
-	{
-		mMaxValue = maxValue;
 
-		//if min has not been set yet - set min as the value to give a good range starting off
-		if (mIsMaxMin == false) {
-			mMinValue = mValue;
-		}
 
-		mIsMaxMin = true;
-	}
 
-	void Tweek::SetMinValue(Variant minValue)
-	{
-		mMinValue = minValue;
-		//if max has not been set yet - set max as the value to give a good range starting off.
-		if (mIsMaxMin == false) {
-			mMaxValue = mValue;
-		}
-
-		mIsMaxMin = true;
-	}
-
-	bool Tweek::HasRange()
-	{
-		return mIsMaxMin;
-	}
 
 	String Tweek::GetSection()
 	{

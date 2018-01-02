@@ -41,37 +41,27 @@ namespace Urho3D
 		//extends the lifetime of the tweek by reseting its expiration timer.
 		void ExtendLifeTime();
 
-		void SetMaxValue(Variant maxValue);
-
-		void SetMinValue(Variant minValue);
-
-		//returns true if the tweek has a corresponding min/max range.
-		bool HasRange();
-
 		//returns the name of the section the tweek belongs to.
 		String GetSection();
 
 		//returns the name of the tweek.
 		String GetName();
 
+
+		//optional max value
+		Variant mMaxValue;
+		
+		//optional min value
+		Variant mMinValue;
+
 		//the value of the tweek.
 		Variant mValue;
-
 	protected:
 
 		String mName;
 		String mSection;
 
 		Timer mExpirationTimer;
-
-		//indicates if the tweek has a user-defined min/max value.
-		bool mIsMaxMin = false;
-		
-		//optional max value
-		Variant mMaxValue;
-		
-		//optional min value
-		Variant mMinValue;
 	};
 
 	typedef HashMap<StringHash, SharedPtr<Tweek>> TweekMap;
@@ -104,6 +94,23 @@ namespace Urho3D
 
 		//returns the names of all sections
 		StringVector GetSections();
+
+		void BeginSection(String section) {
+			mCurSectionStack.Push(section);
+		}
+
+		String CurrentSection() {
+			return mCurSectionStack.Back();
+		}
+
+		void EndSection() {
+			if(mCurSectionStack.Size() > 1)//dont pop the default section.
+				mCurSectionStack.Pop();
+		}
+
+
+
+
 
 		//clears all tweeks.
 		void Clear();
@@ -148,6 +155,7 @@ namespace Urho3D
 		TweekSectionMap mTweekSectionMap;//lookup list of tweeks by section
 		StringVector mSections;
 
+		StringVector mCurSectionStack;
 
 		Timer mExpirationTimer;
 		Timer mTrimTimer;
