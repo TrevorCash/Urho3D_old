@@ -56,7 +56,6 @@ namespace Urho3D {
 		for (unsigned int i = 0; i < mapSize; i++)
 		{
 			SharedPtr<Tweek> newTweek = context_->CreateObject<Tweek>();
-			newTweek->mLastTouchTimeMs = mExpirationTimer.GetMSec(false);
 			newTweek->Load(source);
 			insertTweek(newTweek);
 		}
@@ -94,33 +93,12 @@ namespace Urho3D {
 		mTweekSectionMap.Clear();
 	}
 
-	Variant Tweeks::GetVariant(String name, Variant defaultVal, String section, Tweek** tweek_out)
-	{
-		Tweek* tw = nullptr;
-		if (!mTweekMap.Contains(name + section))
-		{
-			tw = GetTweek(name, section);
-			tw->mValue = defaultVal;
-		}
-		else
-		{
-			tw = GetTweek(name, section);
-		}
-
-		//update the reference.
-		if (tweek_out != nullptr)
-			*tweek_out = tw;
-
-		return tw->mValue;
-	}
-
-
 	void Tweeks::TrimExpired()
 	{
 		Vector<StringHash> keys = mTweekMap.Keys();
 		for (unsigned int i = 0; i < keys.Size(); i++) {
 			Tweek* tw = mTweekMap[keys[i]];
-			if ((mExpirationTimer.GetMSec(false) > (tw->mLastTouchTimeMs + tw->mLifetimeMs)) && (tw->mLifetimeMs >= 0) && (tw->mExtendedLifetime = false)) {
+			if (tw->mExpirationTimer.IsTimedOut()) {
 				mTweekMap.Erase(keys[i]);
 
 				//remove from section map as well
@@ -153,12 +131,12 @@ namespace Urho3D {
 		if (mTweekMap.Contains(name + section))
 		{
 			Tweek* existingTweek = mTweekMap[name + section];
-			existingTweek->mLastTouchTimeMs = mExpirationTimer.GetMSec(false);//keep the tweek alive.
+			existingTweek->ExtendLifeTime();
 			return existingTweek;
 		}
 		else {
 			SharedPtr<Tweek> newTweek = context_->CreateObject<Tweek>();
-			newTweek->mLastTouchTimeMs = mExpirationTimer.GetMSec(false);
+			newTweek->mExpirationTimer.SetTimeoutDuration(TWEEK_LIFETIME_DEFAULT_MS);
 			if (name.Empty()) {
 				name = Tweek::GetTypeNameStatic();
 			}
@@ -196,7 +174,6 @@ namespace Urho3D {
 
 	Tweek::Tweek(Context* context) : Object(context)
 	{
-
 	}
 
 	Tweek::~Tweek()
@@ -213,7 +190,7 @@ namespace Urho3D {
 	{
 		dest->WriteString(mName);
 		dest->WriteString(mSection);
-		dest->WriteInt(mLifetimeMs);
+		dest->WriteInt(mExpirationTimer.GetTimeoutDuration());
 
 		dest->WriteVariant(mValue);
 		dest->WriteBool(mIsMaxMin);
@@ -226,29 +203,22 @@ namespace Urho3D {
 
 		mName = source->ReadString();
 		mSection = source->ReadString();
-		mLifetimeMs = source->ReadInt();
+		mExpirationTimer.SetTimeoutDuration(source->ReadInt());
 		mValue = source->ReadVariant();
 		mIsMaxMin = source->ReadBool();
 		mMinValue = source->ReadVariant();
 		mMaxValue = source->ReadVariant();
-
 	}
 
 
-
-	void Tweek::SetLifetimeMs(int lifetimeMs)
+	int Tweek::GetTimeLeftMs()
 	{
-			mLifetimeMs = lifetimeMs;
+		return (mExpirationTimer.GetStartTime() + mExpirationTimer.GetTimeoutDuration()) - mExpirationTimer.GetMSec(false);
 	}
 
-	int Tweek::GetLifeTimeMs()
+	void Tweek::ExtendLifeTime()
 	{
-		return mLifetimeMs;
-	}
-
-	void Tweek::MarkExtended()
-	{
-		mExtendedLifetime = true;
+		mExpirationTimer.Reset();
 	}
 
 	void Tweek::SetMaxValue(Variant maxValue)

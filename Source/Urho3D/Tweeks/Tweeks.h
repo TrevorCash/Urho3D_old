@@ -6,7 +6,7 @@
 
 namespace Urho3D
 {
-	#define TWEEK_LIFETIME_DEFAULT_MS -1;
+	#define TWEEK_LIFETIME_DEFAULT_MS 0
 
 	class Serializer;
 	class Deserializer;
@@ -29,16 +29,20 @@ namespace Urho3D
 		void Save(Serializer* dest);
 		void Load(Deserializer* source);
 
-		//sets the lifetime of the tweek, if negative the tweek will never be removed.
-		void SetLifetimeMs(int lifetimeMs);
+		//returns approximately how many milliseconds until this tweek is removed.
+		int GetTimeLeftMs();
 
-		//returns the lifetime in ms of the tweek. if negative the tweek will never be removed.
-		int GetLifeTimeMs();
+		//sets the lifetime in milliseconds of the tweek since it was created. 0 will make the tweek last forever.
+		void SetLifetimeMs(unsigned int lifeTimeMs) { mExpirationTimer.SetTimeoutDuration(lifeTimeMs); }
 
-		//temporarily marks this tweek as extending so it will not be removed. (not saved)
-		void MarkExtended();
+		//returns the lifetime of the tweek in milliseconds since it was created.
+		unsigned int GetLifetimeMs() { return mExpirationTimer.GetTimeoutDuration(); }
+
+		//extends the lifetime of the tweek by reseting its expiration timer.
+		void ExtendLifeTime();
 
 		void SetMaxValue(Variant maxValue);
+
 		void SetMinValue(Variant minValue);
 
 		//returns true if the tweek has a corresponding min/max range.
@@ -58,9 +62,7 @@ namespace Urho3D
 		String mName;
 		String mSection;
 
-		int mLifetimeMs = TWEEK_LIFETIME_DEFAULT_MS;
-		unsigned int mLastTouchTimeMs = 0;		
-		bool mExtendedLifetime = false;
+		Timer mExpirationTimer;
 
 		//indicates if the tweek has a user-defined min/max value.
 		bool mIsMaxMin = false;
@@ -79,6 +81,9 @@ namespace Urho3D
 	class Tweeks : public Object {
 
 		URHO3D_OBJECT(Tweeks, Object);
+
+	public: 
+		friend class Tweek;
 
 	public:
 		explicit Tweeks(Context* context);
@@ -106,26 +111,15 @@ namespace Urho3D
 		//iterates through all tweeks and removes the tweeks that have expired.
 		void TrimExpired();
 
+		//sets how often Tweeks are checked for expiration.
 		void SetTrimInterval(unsigned int invervalMs = 1000);
 
 		//returns a new or existing tweek.
 		Tweek* GetTweek(String name, String section = "");
 		
-		//Convienience
-		Variant GetVariant( String name, Variant defaultVal = Variant(0), String section = "", Tweek** tweek_out = nullptr);
-		
 		template <typename T>
 		T Get(String name, T defaultVal = T(), String section = "", Tweek** tweek_out = nullptr) {
-			Tweek* tw = nullptr;
-			if (!mTweekMap.Contains(name + section))
-			{
-				tw = GetTweek(name, section);
-				tw->mValue = defaultVal;
-			}
-			else
-			{
-				tw = GetTweek(name, section);
-			}
+			Tweek* tw = Update(name, defaultVal, section);
 
 			//update the reference.
 			if (tweek_out != nullptr)
@@ -139,8 +133,12 @@ namespace Urho3D
 			return Get<T>(name, T(), section, tweek_out);
 		}
 
-
-
+		template <typename T>
+		Tweek* Update(String name, T value, String section = "") {
+			Tweek* tw = GetTweek(name, section);
+			tw->mValue = value;
+			return tw;
+		}
 	protected:
 
 		void insertTweek(Tweek* tweek);
