@@ -162,16 +162,17 @@ namespace Urho3D {
 
 	Urho3D::Tweek* Tweeks::GetTweek(String name /*= ""*/, String section /*= ""*/)
 	{
-		if (section.Empty())
-			section = CurrentSection();//use the section stack if section is not specified.
-
-		if (mTweekMap.Contains(name + section))
+		if (TweekExists(name, section))
 		{
 			Tweek* existingTweek = mTweekMap[name + section];
 			existingTweek->ExtendLifeTime();
 			return existingTweek;
 		}
 		else {
+
+			if (section.Empty())
+				section = CurrentSection();//use the section stack if section is not specified.
+
 			SharedPtr<Tweek> newTweek = context_->CreateObject<Tweek>();
 			newTweek->mExpirationTimer.SetTimeoutDuration(CurrentTweekTime());
 			if (name.Empty()) {
@@ -183,6 +184,14 @@ namespace Urho3D {
 			insertTweek(newTweek);
 			return newTweek;
 		}
+	}
+
+	bool Tweeks::TweekExists(String name, String section /*= ""*/)
+	{
+		if (section.Empty())
+			section = CurrentSection();
+
+		return mTweekMap.Contains(name + section);
 	}
 
 	void Tweeks::insertTweek(Tweek* tweek)

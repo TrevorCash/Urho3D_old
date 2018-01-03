@@ -127,9 +127,18 @@ namespace Urho3D
 		//returns a new or existing tweek.
 		Tweek* GetTweek(String name, String section = "");
 		
+		bool TweekExists(String name, String section = "");
+
 		template <typename T>
 		T Get(String name, T defaultVal = T(), String section = "", Tweek** tweek_out = nullptr) {
-			Tweek* tw = Update(name, defaultVal, section);
+			Tweek* tw = nullptr;
+			if (TweekExists(name, section))
+			{
+				tw = GetTweek(name, section);
+			}
+			else
+				tw = Update(name, defaultVal, section);
+			
 
 			//update the reference.
 			if (tweek_out != nullptr)
@@ -143,6 +152,7 @@ namespace Urho3D
 			return Get<T>(name, T(), section, tweek_out);
 		}
 
+		//updates a tweek with value, will create a new tweek if needed.
 		template <typename T>
 		Tweek* Update(String name, T value, String section = "") {
 			Tweek* tw = GetTweek(name, section);
