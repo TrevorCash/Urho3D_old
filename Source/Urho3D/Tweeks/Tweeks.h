@@ -7,6 +7,7 @@
 namespace Urho3D
 {
 	#define TWEEK_LIFETIME_DEFAULT_MS 0
+	#define TWEEK_SERIALIZATION_VERSION 0
 
 	class Serializer;
 	class Deserializer;
@@ -29,10 +30,10 @@ namespace Urho3D
 		void Save(Serializer* dest);
 		void Load(Deserializer* source);
 
-		//returns approximately how many milliseconds until this tweek is removed.
+		//returns approximately how many milliseconds until this tweek is marked expired.
 		int GetTimeLeftMs();
 
-		//sets the lifetime in milliseconds of the tweek since it was created. 0 will make the tweek last forever.
+		//sets the lifetime in milliseconds of the tweek since it was created. 0 will make the tweek never expire.
 		void SetLifetimeMs(unsigned int lifeTimeMs) { mExpirationTimer.SetTimeoutDuration(lifeTimeMs); }
 
 		//returns the lifetime of the tweek in milliseconds since it was created.
@@ -41,11 +42,44 @@ namespace Urho3D
 		//extends the lifetime of the tweek by reseting its expiration timer.
 		void ExtendLifeTime();
 
+		//returns true if the tweek is expired.
+		bool IsExpired() { return mExpirationTimer.IsTimedOut(); }
+
 		//returns the name of the section the tweek belongs to.
 		String GetSection();
 
 		//returns the name of the tweek.
 		String GetName();
+
+		//reverts the value to the default value defined in code by the first Get/Update call.
+		void RevertToDefaultValue() {
+			mValue = mDefaultValue;
+		}
+
+		//returns true if the current value is the same as the default value.
+		bool IsDefaultValue() {
+			VariantType valType = mValue.GetType();
+			VariantType defType = mDefaultValue.GetType();
+
+			if (valType != defType)
+				return false;
+
+			//handle fuzzy comparisons
+			switch (valType)
+			{
+			case Urho3D::VAR_QUATERNION:
+				return mValue.GetQuaternion().Equals(mDefaultValue.GetQuaternion());
+				break;
+			case Urho3D::VAR_COLOR:
+				return mValue.GetColor().Equals(mDefaultValue.GetColor());
+				break;
+
+			default:
+				break;
+			}
+
+			return (mValue == mDefaultValue);
+		}
 
 
 		//optional max value
@@ -56,6 +90,11 @@ namespace Urho3D
 
 		//the value of the tweek.
 		Variant mValue;
+
+		//the original default value defined through the Get/Update functions.
+		Variant mDefaultValue;
+
+
 	protected:
 
 		String mName;
@@ -113,16 +152,12 @@ namespace Urho3D
 		//ends the current tweek time - restoring the previous tweek time.
 		void EndTweekTime();
 
-
-
 		//clears all tweeks.
 		void Clear();
 
 		//iterates through all tweeks and removes the tweeks that have expired.
 		void TrimExpired();
 
-		//sets how often Tweeks are checked for expiration.
-		void SetTrimInterval(unsigned int invervalMs = 1000);
 
 		//returns a new or existing tweek.
 		Tweek* GetTweek(String name, String section = "");
@@ -136,9 +171,9 @@ namespace Urho3D
 			{
 				tw = GetTweek(name, section);
 			}
-			else
+			else {
 				tw = Update(name, defaultVal, section);
-			
+			}
 
 			//update the reference.
 			if (tweek_out != nullptr)
@@ -155,8 +190,18 @@ namespace Urho3D
 		//updates a tweek with value, will create a new tweek if needed.
 		template <typename T>
 		Tweek* Update(String name, T value, String section = "") {
-			Tweek* tw = GetTweek(name, section);
-			tw->mValue = value;
+			Tweek* tw = nullptr;
+			if (TweekExists(name, section)) {
+				tw = GetTweek(name, section);
+				tw->mValue = value;
+
+			}
+			else
+			{
+				tw = GetTweek(name, section);
+				tw->mValue = value;
+				tw->mDefaultValue = value;
+			}
 			return tw;
 		}
 	protected:
@@ -170,12 +215,6 @@ namespace Urho3D
 
 		StringVector mCurSectionStack;
 		Vector<unsigned int> mTweekTimeStack;
-
-		Timer mExpirationTimer;
-		Timer mTrimTimer;
-		unsigned int mTrimIntervalMs = 1000;
-
-		void HandleUpdate(StringHash eventType, VariantMap& eventData);
 	};
 
 

@@ -14,11 +14,8 @@ namespace Urho3D {
 
 	Tweeks::Tweeks(Context* context) : Object(context)
 	{
-		mTrimTimer.SetTimeoutDuration(mTrimIntervalMs);
 		BeginSection("default section");
 		BeginTweekTime(TWEEK_LIFETIME_DEFAULT_MS);
-
-		SubscribeToEvent(E_UPDATE, URHO3D_HANDLER(Tweeks, HandleUpdate));
 	}
 
 	Tweeks::~Tweeks()
@@ -39,6 +36,7 @@ namespace Urho3D {
 		if (dest == nullptr)
 			return false;
 
+		dest->WriteInt(TWEEK_SERIALIZATION_VERSION);
 		dest->WriteUInt(mTweekMap.Size());
 
 		for (TweekMap::Iterator i = mTweekMap.Begin(); i != mTweekMap.End(); i++) {
@@ -53,15 +51,17 @@ namespace Urho3D {
 			return false;
 
 		Clear();
-
-		unsigned int mapSize = source->ReadUInt();
-		for (unsigned int i = 0; i < mapSize; i++)
+		int serializationVersion = source->ReadInt();
+		if (serializationVersion == TWEEK_SERIALIZATION_VERSION)
 		{
-			SharedPtr<Tweek> newTweek = context_->CreateObject<Tweek>();
-			newTweek->Load(source);
-			insertTweek(newTweek);
+			unsigned int mapSize = source->ReadUInt();
+			for (unsigned int i = 0; i < mapSize; i++)
+			{
+				SharedPtr<Tweek> newTweek = context_->CreateObject<Tweek>();
+				newTweek->Load(source);
+				insertTweek(newTweek);
+			}
 		}
-
 		return true;
 	}
 
@@ -132,7 +132,7 @@ namespace Urho3D {
 		Vector<StringHash> keys = mTweekMap.Keys();
 		for (unsigned int i = 0; i < keys.Size(); i++) {
 			Tweek* tw = mTweekMap[keys[i]];
-			if (tw->mExpirationTimer.IsTimedOut()) {
+			if (tw->IsExpired()) {
 				mTweekMap.Erase(keys[i]);
 
 				//remove from section map as well
@@ -148,20 +148,16 @@ namespace Urho3D {
 					}
 				}
 			}
-
-			if (mTweekMap.Size() == 0) {
-				mExpirationTimer.Reset();
-			}
 		}
 	}
 
-	void Tweeks::SetTrimInterval(unsigned int invervalMs /*= 1000*/)
-	{
-		mTrimIntervalMs = invervalMs;
-	}
+
 
 	Urho3D::Tweek* Tweeks::GetTweek(String name /*= ""*/, String section /*= ""*/)
-	{
+	{			
+		if (section.Empty())
+				section = CurrentSection();//use the section stack if section is not specified.
+
 		if (TweekExists(name, section))
 		{
 			Tweek* existingTweek = mTweekMap[name + section];
@@ -170,8 +166,6 @@ namespace Urho3D {
 		}
 		else {
 
-			if (section.Empty())
-				section = CurrentSection();//use the section stack if section is not specified.
 
 			SharedPtr<Tweek> newTweek = context_->CreateObject<Tweek>();
 			newTweek->mExpirationTimer.SetTimeoutDuration(CurrentTweekTime());
@@ -209,14 +203,7 @@ namespace Urho3D {
 		return tweek->GetName() + tweek->GetSection();
 	}
 
-	void Tweeks::HandleUpdate(StringHash eventType, VariantMap& eventData)
-	{
-		//only trim on long intervals to save looping on every update.
-		if (mTrimTimer.IsTimedOut()) {
-			mTrimTimer.Reset();
-			TrimExpired();
-		}
-	}
+
 
 	Tweek::Tweek(Context* context) : Object(context)
 	{
@@ -234,10 +221,11 @@ namespace Urho3D {
 
 	void Tweek::Save(Serializer* dest)
 	{
+		dest->WriteInt(TWEEK_SERIALIZATION_VERSION);
 		dest->WriteString(mName);
 		dest->WriteString(mSection);
 		dest->WriteInt(mExpirationTimer.GetTimeoutDuration());
-
+		dest->WriteVariant(mDefaultValue);
 		dest->WriteVariant(mValue);
 		dest->WriteVariant(mMinValue);
 		dest->WriteVariant(mMaxValue);
@@ -245,12 +233,17 @@ namespace Urho3D {
 
 	void Tweek::Load(Deserializer* source)
 	{
-		mName = source->ReadString();
-		mSection = source->ReadString();
-		mExpirationTimer.SetTimeoutDuration(source->ReadInt());
-		mValue = source->ReadVariant();
-		mMinValue = source->ReadVariant();
-		mMaxValue = source->ReadVariant();
+		int serializationVersion = source->ReadInt();
+
+		if (serializationVersion == TWEEK_SERIALIZATION_VERSION) {
+			mName = source->ReadString();
+			mSection = source->ReadString();
+			mExpirationTimer.SetTimeoutDuration(source->ReadInt());
+			mDefaultValue = source->ReadVariant();
+			mValue = source->ReadVariant();
+			mMinValue = source->ReadVariant();
+			mMaxValue = source->ReadVariant();
+		}
 	}
 
 
