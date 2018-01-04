@@ -6,7 +6,7 @@
 
 namespace Urho3D
 {
-	#define TWEEK_LIFETIME_DEFAULT_MS 0
+	#define TWEEK_LIFETIME_DEFAULT_MS 2000 //2 seconds
 	#define TWEEK_SERIALIZATION_VERSION 0
 
 	class Serializer;
