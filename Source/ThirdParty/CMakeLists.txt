@@ -30,6 +30,8 @@ add_subdirectory(STB)
 add_subdirectory(Mustache)
 add_subdirectory(IconFontCppHeaders)
 add_subdirectory(glm)
+add_subdirectory(lemon)
+
 
 if (URHO3D_SYSTEMUI)
     add_subdirectory(imgui)
