@@ -151,7 +151,7 @@ void UIDrag::HandleDragBegin(StringHash eventType, VariantMap& eventData)
     using namespace DragBegin;
     auto* element = (Button*)eventData[P_ELEMENT].GetVoidPtr();
 
-	element->IncreasePriority();
+    element->IncreasePriority();
 
     int lx = eventData[P_X].GetInt();
     int ly = eventData[P_Y].GetInt();
@@ -199,7 +199,7 @@ void UIDrag::HandleDragEnd(StringHash eventType, VariantMap& eventData)
 {
     using namespace DragBegin;
     auto* element = (Button*)eventData[P_ELEMENT].GetVoidPtr();
-	element->DecreasePriority();
+    element->DecreasePriority();
 }
 
 void UIDrag::HandleUpdate(StringHash eventType, VariantMap& eventData)

@@ -278,14 +278,14 @@ public:
     void SetColor(Corner corner, const Color& color);
     /// Set priority.
     void SetPriority(int priority);
-	/// Sets the priority to the highest above all sibling elements
-	void BringToHighestPriority();
-	/// Sets the priority to the lowest below all sibling elements
-	void BringToLowestPriority();
-	/// Sets the priority to higher than the next highest priority sibling element
-	void IncreasePriority();
-	/// Sets the priority to lower than the next lowest priority sibling element
-	void DecreasePriority();
+    /// Sets the priority to the highest above all sibling elements
+    void BringToHighestPriority();
+    /// Sets the priority to the lowest below all sibling elements
+    void BringToLowestPriority();
+    /// Sets the priority to higher than the next highest priority sibling element
+    void IncreasePriority();
+    /// Sets the priority to lower than the next lowest priority sibling element
+    void DecreasePriority();
     /// Set opacity.
     void SetOpacity(float opacity);
     /// Set whether should be brought to front when focused.
@@ -671,8 +671,8 @@ protected:
     virtual bool FilterImplicitAttributes(XMLElement& dest) const;
     /// Update anchored size & position. Only called when anchoring is enabled.
     void UpdateAnchoring();
-	/// Normalizes the priorities of all child elements ensuring sorted and no duplicates.
-	void NormalizeChildPriorities();
+    /// Normalizes the priorities of all child elements ensuring sorted and no duplicates.
+    void NormalizeChildPriorities();
     /// Name.
     String name_;
     /// Child elements.
@@ -804,13 +804,13 @@ private:
     mutable bool derivedColorDirty_;
     /// Child priority sorting dirty flag.
     bool sortOrderDirty_;
-	/// Child priority normalization dirty flag.
-	bool priorityNormalizeDirty_;
-	/// the highest child priority
-	int highestChildPriority;
-	/// the lowest child priority
-	int lowestChildPriority;
-	/// Has color gradient flag.
+    /// Child priority normalization dirty flag.
+    bool priorityNormalizeDirty_;
+    /// the highest child priority
+    int highestChildPriority;
+    /// the lowest child priority
+    int lowestChildPriority;
+    /// Has color gradient flag.
     bool colorGradient_;
     /// Default style file.
     SharedPtr<XMLFile> defaultStyle_;

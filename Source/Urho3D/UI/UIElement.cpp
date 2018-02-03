@@ -120,7 +120,7 @@ UIElement::UIElement(Context* context) :
     indentSpacing_(16),
     position_(IntVector2::ZERO),
     positionDirty_(true),
-	priorityNormalizeDirty_(true),
+    priorityNormalizeDirty_(true),
     dragButtonCombo_(0),
     dragButtonCount_(0),
     size_(IntVector2::ZERO),
@@ -917,50 +917,50 @@ void UIElement::SetPriority(int priority)
         return;
 
     priority_ = priority;
-	if (parent_) {
-		parent_->sortOrderDirty_ = true;
-		parent_->priorityNormalizeDirty_ = true;
-	}
+    if (parent_) {
+        parent_->sortOrderDirty_ = true;
+        parent_->priorityNormalizeDirty_ = true;
+    }
 }
 
 
 void UIElement::BringToHighestPriority()
 {
-	if (!parent_)
-		return;
+    if (!parent_)
+        return;
 
 
-	SetPriority(parent_->highestChildPriority + 1);
-	parent_->NormalizeChildPriorities();
+    SetPriority(parent_->highestChildPriority + 1);
+    parent_->NormalizeChildPriorities();
 }
 
 void UIElement::BringToLowestPriority()
 {
-	if (!parent_)
-		return;
+    if (!parent_)
+        return;
 
-	SetPriority(parent_->lowestChildPriority - 1);
-	parent_->NormalizeChildPriorities();
+    SetPriority(parent_->lowestChildPriority - 1);
+    parent_->NormalizeChildPriorities();
 }
 
 void UIElement::IncreasePriority()
 {
-	if (!parent_)
-		return;
+    if (!parent_)
+        return;
 
 
-	SetPriority(GetPriority() + 2);
-	parent_->NormalizeChildPriorities();
+    SetPriority(GetPriority() + 2);
+    parent_->NormalizeChildPriorities();
 }
 
 void UIElement::DecreasePriority()
 {
-	if (!parent_)
-		return;
+    if (!parent_)
+        return;
 
 
-	SetPriority(GetPriority() - 2);
-	parent_->NormalizeChildPriorities();
+    SetPriority(GetPriority() - 2);
+    parent_->NormalizeChildPriorities();
 }
 
 void UIElement::SetOpacity(float opacity)
@@ -986,10 +986,10 @@ void UIElement::SetClipChildren(bool enable)
 
 void UIElement::SetSortChildren(bool enable)
 {
-	if (!sortChildren_ && enable) {
-		sortOrderDirty_ = true;
-		priorityNormalizeDirty_ = true;
-	}
+    if (!sortChildren_ && enable) {
+        sortOrderDirty_ = true;
+        priorityNormalizeDirty_ = true;
+    }
 
     sortChildren_ = enable;
 }
@@ -1427,19 +1427,19 @@ void UIElement::InsertChild(unsigned index, UIElement* element)
 
     element->Remove();
 
-	if (sortChildren_) {
-		sortOrderDirty_ = true;
-		priorityNormalizeDirty_ = true;
-	}
+    if (sortChildren_) {
+        sortOrderDirty_ = true;
+        priorityNormalizeDirty_ = true;
+    }
 
-	UIElement* oldParent = element->parent_;
+    UIElement* oldParent = element->parent_;
     element->parent_ = this;
     element->MarkDirty();
-	
-	if(oldParent)
-		oldParent->NormalizeChildPriorities();
-	
-	NormalizeChildPriorities();
+    
+    if(oldParent)
+        oldParent->NormalizeChildPriorities();
+    
+    NormalizeChildPriorities();
 
     // Apply style now if child element (and its children) has it defined
     ApplyStyleRecursive(element);
@@ -1908,9 +1908,9 @@ void UIElement::SortChildren()
     {
         // Only sort when there is no layout
         /// \todo Order is not stable when children have same priorities
-		if (layoutMode_ == LM_FREE) {
+        if (layoutMode_ == LM_FREE) {
             Sort(children_.Begin(), children_.End(), CompareUIElements);
-		}
+        }
 
         sortOrderDirty_ = false;
     }
@@ -2173,73 +2173,73 @@ void UIElement::UpdateAnchoring()
 
 void UIElement::NormalizeChildPriorities()
 {
-	if (!priorityNormalizeDirty_)
-		return;
+    if (!priorityNormalizeDirty_)
+        return;
 
-	lowestChildPriority = M_MAX_INT;
-	highestChildPriority = 0;
+    lowestChildPriority = M_MAX_INT;
+    highestChildPriority = 0;
 
-	//Ensure Sorted
-	SortChildren();
+    //Ensure Sorted
+    SortChildren();
 
-	//determine lowest priority and form priorities array.
-	PODVector<int> priorities;
-	for (unsigned int i = 0; i < children_.Size(); i++) {
-		UIElement* child = children_[i];
-		int priority = child->GetPriority();
-		priorities.Push(priority);
+    //determine lowest priority and form priorities array.
+    PODVector<int> priorities;
+    for (unsigned int i = 0; i < children_.Size(); i++) {
+        UIElement* child = children_[i];
+        int priority = child->GetPriority();
+        priorities.Push(priority);
 
-		if (priority != M_MAX_INT) {
-			if (priority < lowestChildPriority)
-				lowestChildPriority = priority;
-			if (priority > highestChildPriority)
-				highestChildPriority = priority;
-		}
-	}
+        if (priority != M_MAX_INT) {
+            if (priority < lowestChildPriority)
+                lowestChildPriority = priority;
+            if (priority > highestChildPriority)
+                highestChildPriority = priority;
+        }
+    }
 
-	int rebaseOffset = lowestChildPriority;
+    int rebaseOffset = lowestChildPriority;
 
-	lowestChildPriority = lowestChildPriority + rebaseOffset;
-	highestChildPriority = highestChildPriority + rebaseOffset;
-
-
-	//fix up priorities array removing doubles and rebasing at 0.
-	PODVector<int> corrected;
-	int dupOffset = 0;
-
-	for (unsigned int j = 0; j < priorities.Size(); j++) {
-
-		if (corrected.Contains(priorities[j]))
-		{
-			dupOffset++;
-		}
-
-		if (priorities[j] != M_MAX_INT)
-			corrected.Push(priorities[j] + dupOffset + rebaseOffset);
-		else
-			corrected.Push(priorities[j]);
-	}
+    lowestChildPriority = lowestChildPriority + rebaseOffset;
+    highestChildPriority = highestChildPriority + rebaseOffset;
 
 
-	for (unsigned int j = 0; j < corrected.Size(); j++) {
-		int packOffset = 0;
-		if (j > 0 && (corrected[j] > corrected[j - 1] + 1))
-		{
-			packOffset += (corrected[j] - corrected[j - 1] - 1);
-		}
+    //fix up priorities array removing doubles and rebasing at 0.
+    PODVector<int> corrected;
+    int dupOffset = 0;
 
-		if (corrected[j] != M_MAX_INT)
-			corrected[j] = corrected[j] - packOffset;
-	}
+    for (unsigned int j = 0; j < priorities.Size(); j++) {
+
+        if (corrected.Contains(priorities[j]))
+        {
+            dupOffset++;
+        }
+
+        if (priorities[j] != M_MAX_INT)
+            corrected.Push(priorities[j] + dupOffset + rebaseOffset);
+        else
+            corrected.Push(priorities[j]);
+    }
+
+
+    for (unsigned int j = 0; j < corrected.Size(); j++) {
+        int packOffset = 0;
+        if (j > 0 && (corrected[j] > corrected[j - 1] + 1))
+        {
+            packOffset += (corrected[j] - corrected[j - 1] - 1);
+        }
+
+        if (corrected[j] != M_MAX_INT)
+            corrected[j] = corrected[j] - packOffset;
+    }
 
 
 
-	//re-apply priorities of all children 
-	for (unsigned int k = 0; k < corrected.Size(); k++) {
-		children_[k]->SetPriority(corrected[k]);
-	}
+    //re-apply priorities of all children 
+    for (unsigned int k = 0; k < corrected.Size(); k++) {
+        children_[k]->SetPriority(corrected[k]);
+    }
 
-	priorityNormalizeDirty_ = false;
+    priorityNormalizeDirty_ = false;
 }
 
 void UIElement::GetChildrenRecursive(PODVector<UIElement*>& dest) const
