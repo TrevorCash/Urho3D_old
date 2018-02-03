@@ -282,10 +282,10 @@ public:
     void BringToHighestPriority();
     /// Sets the priority to the lowest below all sibling elements
     void BringToLowestPriority();
-    /// Sets the priority to higher than the next highest priority sibling element
-    void IncreasePriority();
-    /// Sets the priority to lower than the next lowest priority sibling element
-    void DecreasePriority();
+    /// Sets the priority to higher than the next highest priority sibling element. steps indicates how many priority levels to increase
+    void IncreasePriority(int steps = 1);
+    /// Sets the priority to lower than the next lowest priority sibling element. steps indicates how many priority levels to decrease
+    void DecreasePriority(int steps = 1);
     /// Set opacity.
     void SetOpacity(float opacity);
     /// Set whether should be brought to front when focused.

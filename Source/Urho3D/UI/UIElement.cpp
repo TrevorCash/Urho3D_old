@@ -943,23 +943,22 @@ void UIElement::BringToLowestPriority()
     parent_->NormalizeChildPriorities();
 }
 
-void UIElement::IncreasePriority()
+void UIElement::IncreasePriority(int steps)
 {
     if (!parent_)
         return;
 
-
-    SetPriority(GetPriority() + 2);
+    SetPriority(GetPriority() + 2*steps);
     parent_->NormalizeChildPriorities();
 }
 
-void UIElement::DecreasePriority()
+void UIElement::DecreasePriority(int steps)
 {
     if (!parent_)
         return;
 
 
-    SetPriority(GetPriority() - 2);
+    SetPriority(GetPriority() - 2*steps);
     parent_->NormalizeChildPriorities();
 }
 
