@@ -74,6 +74,8 @@ void SkeletalAnimation::Start()
 
     // Set the mouse mode to use in the sample
     Sample::InitMouseMode(MM_ABSOLUTE);
+
+	GSS<Engine>()->SetUpdateFpsGoal(5);
 }
 
 void SkeletalAnimation::CreateScene()

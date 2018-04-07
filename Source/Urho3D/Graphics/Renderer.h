@@ -380,7 +380,7 @@ public:
     const RenderFrameInfo& GetFrameInfo() const { return frame_; }
 
     /// Update for rendering. Called by HandleRenderUpdate().
-    void Update(float timeStep);
+    void Update(VariantMap& renderEventData);
     /// Render. Called by Engine.
     void Render();
     /// Add debug geometry to the debug renderer.

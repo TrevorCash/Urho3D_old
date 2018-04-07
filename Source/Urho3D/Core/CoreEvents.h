@@ -58,8 +58,10 @@ URHO3D_EVENT(E_POSTUPDATE, PostUpdate)
 /// Render update event.
 URHO3D_EVENT(E_RENDERUPDATE, RenderUpdate)
 {
-    URHO3D_PARAM(P_TIMESTEP, TimeStep);            // float
-	URHO3D_PARAM(P_RENDERTICK, RenderTickNumber);  // long long
+    URHO3D_PARAM(P_TIMESTEP, TimeStep);					// float (how long since the last render update)
+	URHO3D_PARAM(P_RENDERTICK, RenderTickNumber);		// long long (the tick number of this render tick)
+	URHO3D_PARAM(P_MIDUPDATEPERC, UpdatePerc);			// float (the approximate percentage (0 - 1) this render falls inside the update event timestep
+	URHO3D_PARAM(P_LASTUPDATETICK, LastUpdateTick);     // float (the last update tick to happen before render update)
 }
 
 /// Post-render update event.

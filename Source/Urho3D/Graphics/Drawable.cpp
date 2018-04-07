@@ -134,7 +134,10 @@ void Drawable::ProcessRayQuery(const RayOctreeQuery& query, PODVector<RayQueryRe
 void Drawable::UpdateBatches(const RenderFrameInfo& frame)
 {
     const BoundingBox& worldBoundingBox = GetWorldBoundingBox();
-    const Matrix3x4& worldTransform = node_->GetWorldTransform();
+    const Matrix3x4& worldTransform = getTweenedWorldTransform(frame);
+
+	
+
     distance_ = frame.camera_->GetDistance(worldBoundingBox.Center());
 
     for (unsigned i = 0; i < batches_.Size(); ++i)
@@ -417,6 +420,29 @@ void Drawable::RemoveFromOctree()
 
         octant_->RemoveDrawable(this);
     }
+}
+
+Matrix3x4 Drawable::getTweenedWorldTransform(const RenderFrameInfo& frame)
+{
+	Matrix3x4 finalTransform;
+
+	//handle the transitions
+
+
+
+	//always tween between nodes prev transform and current transform
+	node_->
+
+
+
+	return finalTransform;
+}
+
+
+Matrix3x4 Drawable::getTweenedLocalTransform(const RenderFrameInfo& frame)
+{
+
+
 }
 
 bool WriteDrawablesToOBJ(PODVector<Drawable*> drawables, File* outputFile, bool asZUp, bool asRightHanded, bool writeLightmapUV)

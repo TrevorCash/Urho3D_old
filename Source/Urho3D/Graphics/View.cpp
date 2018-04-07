@@ -522,8 +522,6 @@ void View::Update(const RenderFrameInfo& frame)
         return;
 
     frame_.camera_ = cullCamera_;
-    frame_.timeStep_ = frame.timeStep_;
-    frame_.frameNumber_ = frame.frameNumber_;
     frame_.viewSize_ = viewSize_;
 
     using namespace BeginViewUpdate;

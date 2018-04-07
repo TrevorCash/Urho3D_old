@@ -815,7 +815,15 @@ void Engine::Render()
 	VariantMap& eventData = GetEventDataMap();
 	eventData[RenderUpdate::P_TIMESTEP] = float(lastRenderTimeUs_)/1000.0f;
 	eventData[RenderUpdate::P_RENDERTICK] = renderTick_;
+	eventData[RenderUpdate::P_LASTUPDATETICK] = updateTick_;
 	
+
+	unsigned updateTimeLeft = updateTimer_.GetTimeoutDuration() - updateTimer_.GetUSec(false);
+	float updateMidPerc = Clamp(1.0f - float(updateTimeLeft) / float(updateTimer_.GetTimeoutDuration()), 0.0f, 1.0f);
+	eventData[RenderUpdate::P_MIDUPDATEPERC] = updateMidPerc;
+
+
+
 	// Rendering update event
 	SendEvent(E_RENDERUPDATE, eventData);
 

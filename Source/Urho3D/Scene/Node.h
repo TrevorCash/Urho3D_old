@@ -51,7 +51,13 @@ enum TransformSpace
     TS_PARENT,
     TS_WORLD
 };
-
+/// Elements used to construct a 3d transformation matrix.
+struct URHO3D_API TransformElements
+{
+	Vector3 position = Vector3::ZERO;
+	Quaternion orientation = Quaternion::IDENTITY;
+	Vector3 scale = Vector3::ONE;
+};
 /// Internal implementation structure for less performance-critical Node variables.
 struct URHO3D_API NodeImpl
 {
@@ -372,34 +378,34 @@ public:
     Connection* GetOwner() const { return impl_->owner_; }
 
     /// Return position in parent space.
-    const Vector3& GetPosition() const { return position_; }
+    const Vector3& GetPosition() const { return curTransform.position; }
 
     /// Return position in parent space (for Urho2D).
-    Vector2 GetPosition2D() const { return Vector2(position_.x_, position_.y_); }
+    Vector2 GetPosition2D() const { return Vector2(curTransform.position.x_, curTransform.position.y_); }
 
     /// Return rotation in parent space.
-    const Quaternion& GetRotation() const { return rotation_; }
+    const Quaternion& GetRotation() const { return curTransform.orientation; }
 
     /// Return rotation in parent space (for Urho2D).
-    float GetRotation2D() const { return rotation_.RollAngle(); }
+    float GetRotation2D() const { return curTransform.orientation.RollAngle(); }
 
     /// Return forward direction in parent space. Positive Z axis equals identity rotation.
-    Vector3 GetDirection() const { return rotation_ * Vector3::FORWARD; }
+    Vector3 GetDirection() const { return curTransform.orientation * Vector3::FORWARD; }
 
     /// Return up direction in parent space. Positive Y axis equals identity rotation.
-    Vector3 GetUp() const { return rotation_ * Vector3::UP; }
+    Vector3 GetUp() const { return curTransform.orientation * Vector3::UP; }
 
     /// Return right direction in parent space. Positive X axis equals identity rotation.
-    Vector3 GetRight() const { return rotation_ * Vector3::RIGHT; }
+    Vector3 GetRight() const { return curTransform.orientation * Vector3::RIGHT; }
 
     /// Return scale in parent space.
-    const Vector3& GetScale() const { return scale_; }
+    const Vector3& GetScale() const { return curTransform.scale; }
 
     /// Return scale in parent space (for Urho2D).
-    Vector2 GetScale2D() const { return Vector2(scale_.x_, scale_.y_); }
+    Vector2 GetScale2D() const { return Vector2(curTransform.scale.x_, curTransform.scale.y_); }
 
     /// Return parent space transform matrix.
-    Matrix3x4 GetTransform() const { return Matrix3x4(position_, rotation_, scale_); }
+    Matrix3x4 GetTransform() const { return Matrix3x4(curTransform.position, curTransform.orientation, curTransform.scale); }
 
     /// Return position in world space.
     Vector3 GetWorldPosition() const
@@ -620,13 +626,13 @@ public:
     unsigned GetNumPersistentComponents() const;
 
     /// Set position in parent space silently without marking the node & child nodes dirty. Used by animation code.
-    void SetPositionSilent(const Vector3& position) { position_ = position; }
+    void SetPositionSilent(const Vector3& position) { curTransform.position = position; }
 
     /// Set position in parent space silently without marking the node & child nodes dirty. Used by animation code.
-    void SetRotationSilent(const Quaternion& rotation) { rotation_ = rotation; }
+    void SetRotationSilent(const Quaternion& rotation) { curTransform.orientation = rotation; }
 
     /// Set scale in parent space silently without marking the node & child nodes dirty. Used by animation code.
-    void SetScaleSilent(const Vector3& scale) { scale_ = scale; }
+    void SetScaleSilent(const Vector3& scale) { curTransform.scale = scale; }
 
     /// Set local transform silently without marking the node & child nodes dirty. Used by animation code.
     void SetTransformSilent(const Vector3& position, const Quaternion& rotation, const Vector3& scale);
@@ -683,12 +689,11 @@ private:
     Scene* scene_;
     /// Unique ID within the scene.
     unsigned id_;
-    /// Position.
-    Vector3 position_;
-    /// Rotation.
-    Quaternion rotation_;
-    /// Scale.
-    Vector3 scale_;
+	///The latest local transform
+	TransformElements curTransform;
+
+	///The previous local transform (updated by renderer)
+	TransformElements prevTransform;
     /// World-space rotation.
     mutable Quaternion worldRotation_;
     /// Components.

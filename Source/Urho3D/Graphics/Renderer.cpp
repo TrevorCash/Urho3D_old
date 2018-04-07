@@ -645,7 +645,7 @@ unsigned Renderer::GetNumOccluders(bool allViews) const
     return numOccluders;
 }
 
-void Renderer::Update(float timeStep)
+void Renderer::Update(VariantMap& renderEventData)
 {
     URHO3D_PROFILE(UpdateViews);
 
@@ -658,8 +658,10 @@ void Renderer::Update(float timeStep)
         return;
 
     // Set up the frameinfo structure for this frame
-    frame_.frameNumber_ = GetSubsystem<Engine>()->GetRenderCount();
-    frame_.timeStep_ = timeStep;
+    frame_.frameNumber_ = renderEventData[RenderUpdate::P_RENDERTICK].GetInt();
+    frame_.timeStep_ = renderEventData[RenderUpdate::P_TIMESTEP].GetFloat();
+	frame_.lastUpdateTick_ = renderEventData[RenderUpdate::P_LASTUPDATETICK].GetInt();
+	frame_.midUpdatePercent_ = renderEventData[RenderUpdate::P_MIDUPDATEPERC].GetFloat();
     frame_.camera_ = nullptr;
     numShadowCameras_ = 0;
     numOcclusionBuffers_ = 0;
@@ -1954,9 +1956,7 @@ void Renderer::HandleScreenMode(StringHash eventType, VariantMap& eventData)
 
 void Renderer::HandleRenderUpdate(StringHash eventType, VariantMap& eventData)
 {
-    using namespace RenderUpdate;
-
-    Update(eventData[P_TIMESTEP].GetFloat());
+    Update(eventData);
 }
 
 

@@ -69,6 +69,11 @@ struct RenderFrameInfo
     unsigned frameNumber_;
     /// Time elapsed since last frame.
     float timeStep_;
+	/// last update tick
+	unsigned lastUpdateTick_;
+	/// mid update percent
+	float midUpdatePercent_;
+
     /// Viewport size.
     IntVector2 viewSize_;
     /// Camera being used.
@@ -323,6 +328,9 @@ protected:
     /// Move into another octree octant.
     void SetOctant(Octant* octant) { octant_ = octant; }
 
+
+	Matrix3x4 getTweenedWorldTransform(const RenderFrameInfo& frame);
+
     /// World-space bounding box.
     BoundingBox worldBoundingBox_;
     /// Local-space bounding box.
@@ -385,6 +393,7 @@ protected:
     PODVector<Light*> lights_;
     /// Per-vertex lights affecting this drawable.
     PODVector<Light*> vertexLights_;
+
 };
 
 inline bool CompareDrawables(Drawable* lhs, Drawable* rhs)

@@ -55,9 +55,6 @@ Node::Node(Context* context) :
     parent_(nullptr),
     scene_(nullptr),
     id_(0),
-    position_(Vector3::ZERO),
-    rotation_(Quaternion::IDENTITY),
-    scale_(Vector3::ONE),
     worldRotation_(Quaternion::IDENTITY)
 {
     impl_ = new NodeImpl();
@@ -446,7 +443,7 @@ void Node::RemoveAllTags()
 
 void Node::SetPosition(const Vector3& position)
 {
-    position_ = position;
+	curTransform.position = position;
     MarkDirty();
 
     MarkNetworkUpdate();
@@ -454,7 +451,7 @@ void Node::SetPosition(const Vector3& position)
 
 void Node::SetRotation(const Quaternion& rotation)
 {
-    rotation_ = rotation;
+	curTransform.orientation = rotation;
     MarkDirty();
 
     MarkNetworkUpdate();
@@ -472,15 +469,15 @@ void Node::SetScale(float scale)
 
 void Node::SetScale(const Vector3& scale)
 {
-    scale_ = scale;
+	curTransform.scale = scale;
     // Prevent exact zero scale e.g. from momentary edits as this may cause division by zero
     // when decomposing the world transform matrix
-    if (scale_.x_ == 0.0f)
-        scale_.x_ = M_EPSILON;
-    if (scale_.y_ == 0.0f)
-        scale_.y_ = M_EPSILON;
-    if (scale_.z_ == 0.0f)
-        scale_.z_ = M_EPSILON;
+    if (curTransform.scale.x_ == 0.0f)
+		curTransform.scale.x_ = M_EPSILON;
+    if (curTransform.scale.y_ == 0.0f)
+        curTransform.scale.y_ = M_EPSILON;
+    if (curTransform.scale.z_ == 0.0f)
+        curTransform.scale.z_ = M_EPSILON;
 
     MarkDirty();
     MarkNetworkUpdate();
@@ -488,8 +485,8 @@ void Node::SetScale(const Vector3& scale)
 
 void Node::SetTransform(const Vector3& position, const Quaternion& rotation)
 {
-    position_ = position;
-    rotation_ = rotation;
+	curTransform.position = position;
+	curTransform.orientation = rotation;
     MarkDirty();
 
     MarkNetworkUpdate();
@@ -502,9 +499,9 @@ void Node::SetTransform(const Vector3& position, const Quaternion& rotation, flo
 
 void Node::SetTransform(const Vector3& position, const Quaternion& rotation, const Vector3& scale)
 {
-    position_ = position;
-    rotation_ = rotation;
-    scale_ = scale;
+	curTransform.position = position;
+	curTransform.orientation = rotation;
+    curTransform.scale = scale;
     MarkDirty();
 
     MarkNetworkUpdate();
@@ -567,15 +564,15 @@ void Node::Translate(const Vector3& delta, TransformSpace space)
     {
     case TS_LOCAL:
         // Note: local space translation disregards local scale for scale-independent movement speed
-        position_ += rotation_ * delta;
+		curTransform.position += curTransform.orientation * delta;
         break;
 
     case TS_PARENT:
-        position_ += delta;
+		curTransform.position += delta;
         break;
 
     case TS_WORLD:
-        position_ += (parent_ == scene_ || !parent_) ? delta : parent_->GetWorldTransform().Inverse() * Vector4(delta, 0.0f);
+		curTransform.position += (parent_ == scene_ || !parent_) ? delta : parent_->GetWorldTransform().Inverse() * Vector4(delta, 0.0f);
         break;
     }
 
@@ -589,20 +586,20 @@ void Node::Rotate(const Quaternion& delta, TransformSpace space)
     switch (space)
     {
     case TS_LOCAL:
-        rotation_ = (rotation_ * delta).Normalized();
+		curTransform.orientation = (curTransform.orientation * delta).Normalized();
         break;
 
     case TS_PARENT:
-        rotation_ = (delta * rotation_).Normalized();
+		curTransform.orientation = (delta * curTransform.orientation).Normalized();
         break;
 
     case TS_WORLD:
         if (parent_ == scene_ || !parent_)
-            rotation_ = (delta * rotation_).Normalized();
+			curTransform.orientation = (delta * curTransform.orientation).Normalized();
         else
         {
             Quaternion worldRotation = GetWorldRotation();
-            rotation_ = rotation_ * worldRotation.Inverse() * delta * worldRotation;
+			curTransform.orientation = curTransform.orientation * worldRotation.Inverse() * delta * worldRotation;
         }
         break;
     }
@@ -615,37 +612,37 @@ void Node::Rotate(const Quaternion& delta, TransformSpace space)
 void Node::RotateAround(const Vector3& point, const Quaternion& delta, TransformSpace space)
 {
     Vector3 parentSpacePoint;
-    Quaternion oldRotation = rotation_;
+    Quaternion oldRotation = curTransform.orientation;
 
     switch (space)
     {
     case TS_LOCAL:
         parentSpacePoint = GetTransform() * point;
-        rotation_ = (rotation_ * delta).Normalized();
+		curTransform.orientation = (curTransform.orientation * delta).Normalized();
         break;
 
     case TS_PARENT:
         parentSpacePoint = point;
-        rotation_ = (delta * rotation_).Normalized();
+		curTransform.orientation = (delta *  curTransform.orientation).Normalized();
         break;
 
     case TS_WORLD:
         if (parent_ == scene_ || !parent_)
         {
             parentSpacePoint = point;
-            rotation_ = (delta * rotation_).Normalized();
+			curTransform.orientation = (delta *  curTransform.orientation).Normalized();
         }
         else
         {
             parentSpacePoint = parent_->GetWorldTransform().Inverse() * point;
             Quaternion worldRotation = GetWorldRotation();
-            rotation_ = rotation_ * worldRotation.Inverse() * delta * worldRotation;
+			curTransform.orientation = curTransform.orientation * worldRotation.Inverse() * delta * worldRotation;
         }
         break;
     }
 
-    Vector3 oldRelativePos = oldRotation.Inverse() * (position_ - parentSpacePoint);
-    position_ = rotation_ * oldRelativePos + parentSpacePoint;
+    Vector3 oldRelativePos = oldRotation.Inverse() * (curTransform.position - parentSpacePoint);
+	curTransform.position = curTransform.orientation * oldRelativePos + parentSpacePoint;
 
     MarkDirty();
 
@@ -706,7 +703,7 @@ void Node::Scale(float scale)
 
 void Node::Scale(const Vector3& scale)
 {
-    scale_ *= scale;
+    curTransform.scale *= scale;
     MarkDirty();
 
     MarkNetworkUpdate();
@@ -1511,13 +1508,13 @@ void Node::SetNetParentAttr(const PODVector<unsigned char>& value)
 
 const Vector3& Node::GetNetPositionAttr() const
 {
-    return position_;
+    return curTransform.position;
 }
 
 const PODVector<unsigned char>& Node::GetNetRotationAttr() const
 {
     impl_->attrBuffer_.Clear();
-    impl_->attrBuffer_.WritePackedQuaternion(rotation_);
+    impl_->attrBuffer_.WritePackedQuaternion(curTransform.orientation);
     return impl_->attrBuffer_.GetBuffer();
 }
 
@@ -1893,9 +1890,9 @@ unsigned Node::GetNumPersistentComponents() const
 
 void Node::SetTransformSilent(const Vector3& position, const Quaternion& rotation, const Vector3& scale)
 {
-    position_ = position;
-    rotation_ = rotation;
-    scale_ = scale;
+	curTransform.position = position;
+	curTransform.orientation = rotation;
+    curTransform.scale = scale;
 }
 
 void Node::OnAttributeAnimationAdded()
@@ -2092,12 +2089,12 @@ void Node::UpdateWorldTransform() const
     if (parent_ == scene_ || !parent_)
     {
         worldTransform_ = transform;
-        worldRotation_ = rotation_;
+        worldRotation_ = curTransform.orientation;
     }
     else
     {
         worldTransform_ = parent_->GetWorldTransform() * transform;
-        worldRotation_ = parent_->GetWorldRotation() * rotation_;
+        worldRotation_ = parent_->GetWorldRotation() * curTransform.orientation;
     }
 
     dirty_ = false;
