@@ -1184,6 +1184,53 @@ Vector3 Node::GetSignedWorldScale() const
     return worldTransform_.SignedScale(worldRotation_.RotationMatrix());
 }
 
+
+
+
+
+Matrix3x4 Node::GetTweenedWorldTransform(float tweenPerc)
+{
+	Matrix3x4 transform = GetTweenedLocalTransform(tweenPerc);
+	Matrix3x4 worldTransformTweened;
+
+	// Assume the root node (scene) has identity transform
+	if (parent_ == scene_ || !parent_)
+	{
+		worldTransformTweened = transform;
+		//worldRotation_ = curTransform.orientation;
+	}
+	else
+	{
+		worldTransformTweened = parent_->GetTweenedWorldTransform(tweenPerc) * transform;
+		/*worldRotation_ = parent_->GetWorldRotation() * curTransform.orientation;*/
+	}
+
+	return worldTransformTweened;
+
+}
+
+
+Matrix3x4 Node::GetTweenedLocalTransform(float tweenPerc)
+{
+
+	Vector3 tweenedPosition = (curTransform.position - prevTransform.position)*tweenPerc;
+	Vector3 tweenedScale = (curTransform.scale - prevTransform.scale)*tweenPerc;
+	Quaternion tweenedOrientation = prevTransform.orientation;
+	tweenedOrientation.Slerp(curTransform.orientation, tweenPerc);
+
+	return Matrix3x4(tweenedPosition, tweenedOrientation, tweenedScale);
+}
+
+
+
+
+
+void Node::CopyTweenTransforms()
+{
+	URHO3D_LOGINFO("copying");
+	prevTransform = curTransform;
+}
+
 Vector3 Node::LocalToWorld(const Vector3& position) const
 {
     return GetWorldTransform() * position;
@@ -1375,6 +1422,18 @@ bool Node::IsReplicated() const
 bool Node::HasTag(const String& tag) const
 {
     return impl_->tags_.Contains(tag);
+}
+
+PODVector<Node*> Node::GetParentNodes() const
+{
+	PODVector<Node*> list;
+	Node* cur = parent_;
+	while (cur)
+	{
+		list.Push(cur);
+		cur = cur->parent_;
+	}
+	return list;
 }
 
 bool Node::IsChildOf(Node* node) const

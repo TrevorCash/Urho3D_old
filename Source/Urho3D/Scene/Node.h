@@ -365,6 +365,9 @@ public:
     /// Return scene.
     Scene* GetScene() const { return scene_; }
 
+	/// return a list of all parent nodes up to the scene. the immediate parent is listed first. the scene node is listed last.
+	PODVector<Node*> GetParentNodes() const;
+
     /// Return whether is a direct or indirect child of specified node.
     bool IsChildOf(Node* node) const;
 
@@ -492,6 +495,14 @@ public:
 
         return worldTransform_;
     }
+
+
+	Matrix3x4 GetTweenedWorldTransform(float tweenPerc);
+	Matrix3x4 GetTweenedLocalTransform(float tweenPerc);
+
+	void CopyTweenTransforms();
+
+
 
     /// Convert a local space position to world space.
     Vector3 LocalToWorld(const Vector3& position) const;
@@ -691,8 +702,7 @@ private:
     unsigned id_;
 	///The latest local transform
 	TransformElements curTransform;
-
-	///The previous local transform (updated by renderer)
+	///The previous local transform of node for tweening (used by renderer)
 	TransformElements prevTransform;
     /// World-space rotation.
     mutable Quaternion worldRotation_;

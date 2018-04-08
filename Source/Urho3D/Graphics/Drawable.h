@@ -329,8 +329,6 @@ protected:
     void SetOctant(Octant* octant) { octant_ = octant; }
 
 
-	Matrix3x4 getTweenedWorldTransform(const RenderFrameInfo& frame);
-
     /// World-space bounding box.
     BoundingBox worldBoundingBox_;
     /// Local-space bounding box.
