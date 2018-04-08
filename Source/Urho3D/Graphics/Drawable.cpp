@@ -426,9 +426,6 @@ Matrix3x4 Drawable::getTweenedWorldTransform(const RenderFrameInfo& frame)
 {
 	Matrix3x4 finalTransform;
 
-	//handle the transitions
-
-
 
 	//always tween between nodes prev transform and current transform
 	node_->
