@@ -69,6 +69,12 @@ struct URHO3D_API NodeImpl
     mutable VectorBuffer attrBuffer_;
 };
 
+struct URHO3D_API NodeChildEntry
+{
+	SharedPtr<Node> node_;
+	unsigned orderIndex_;
+};
+
 /// %Scene node that may contain components and child nodes.
 class URHO3D_API Node : public Animatable
 {
@@ -287,8 +293,8 @@ public:
     Node* CreateChild(const String& name = String::EMPTY, CreateMode mode = REPLICATED, unsigned id = 0, bool temporary = false);
     /// Create a temporary child scene node (with specified ID if provided).
     Node* CreateTemporaryChild(const String& name = String::EMPTY, CreateMode mode = REPLICATED, unsigned id = 0);
-    /// Add a child scene node at a specific index. If index is not explicitly specified or is greater than current children size, append the new child at the end.
-    void AddChild(Node* node, unsigned index = M_MAX_UNSIGNED);
+    /// Add a child scene node
+    void AddChild(Node* node);
     /// Remove a child scene node.
     void RemoveChild(Node* node);
     /// Remove all child scene nodes.
@@ -507,7 +513,7 @@ public:
     unsigned GetNumChildren(bool recursive = false) const;
 
     /// Return immediate child scene nodes.
-    const Vector<SharedPtr<Node> >& GetChildren() const { return children_; }
+    const Vector<SharedPtr<Node> > GetChildren() const;
 
     /// Return child scene nodes, optionally recursive.
     void GetChildren(PODVector<Node*>& dest, bool recursive = false) const;
@@ -522,8 +528,7 @@ public:
     /// Return child scene nodes with a specific tag.
     PODVector<Node*> GetChildrenWithTag(const String& tag, bool recursive = false) const;
 
-    /// Return child scene node by index.
-    Node* GetChild(unsigned index) const;
+
     /// Return child scene node by name.
     Node* GetChild(const String& name, bool recursive = false) const;
     /// Return child scene node by name.
@@ -647,7 +652,7 @@ private:
     /// Recalculate the world transform.
     void UpdateWorldTransform() const;
     /// Remove child node by iterator.
-    void RemoveChild(Vector<SharedPtr<Node> >::Iterator i);
+    void RemoveChild(HashSet<SharedPtr<Node> >::Iterator i);
     /// Return child nodes recursively.
     void GetChildrenRecursive(PODVector<Node*>& dest) const;
     /// Return child nodes with a specific component recursively.
@@ -694,7 +699,7 @@ private:
     /// Components.
     Vector<SharedPtr<Component> > components_;
     /// Child scene nodes.
-    Vector<SharedPtr<Node> > children_;
+    HashSet<SharedPtr<Node>> children_;
     /// Node listeners.
     Vector<WeakPtr<Component> > listeners_;
     /// Pointer to implementation.
@@ -746,9 +751,9 @@ template <class T> T* Node::GetDerivedComponent(bool recursive) const
 
     if (recursive)
     {
-        for (Vector<SharedPtr<Node> >::ConstIterator i = children_.Begin(); i != children_.End(); ++i)
+		for (SharedPtr<Node> child : children_)
         {
-            T* component = (*i)->GetDerivedComponent<T>(true);
+            T* component = child->GetDerivedComponent<T>(true);
             if (component)
                 return component;
         }
@@ -788,8 +793,8 @@ template <class T> void Node::GetDerivedComponents(PODVector<T*>& dest, bool rec
 
     if (recursive)
     {
-        for (Vector<SharedPtr<Node> >::ConstIterator i = children_.Begin(); i != children_.End(); ++i)
-            (*i)->GetDerivedComponents<T>(dest, true, false);
+		for (SharedPtr<Node> child : children_)
+			child->GetDerivedComponents<T>(dest, true, false);
     }
 }
 
