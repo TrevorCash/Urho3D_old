@@ -28,7 +28,6 @@
 #include "../Math/Sphere.h"
 #include "../Math/Vector3.h"
 #include "../Scene/Component.h"
-
 #include <Bullet/LinearMath/btIDebugDraw.h>
 
 class btCollisionConfiguration;
