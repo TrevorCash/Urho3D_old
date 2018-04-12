@@ -13,6 +13,7 @@
 #include "../SystemUI/SystemUI.h"
 #endif
 #include "../IO/File.h"
+#include "../IO/FileSystem.h"
 
 namespace Urho3D {
 
@@ -22,8 +23,6 @@ namespace Urho3D {
 		mCurrentSaveFileName = mDefaultFileName;
 		BeginSection("default section");
 		BeginTweekTime(TWEEK_LIFETIME_DEFAULT_MS);
-
-		Load(mDefaultFileName.Trimmed());
 	}
 
 	Tweeks::~Tweeks()
@@ -59,6 +58,11 @@ namespace Urho3D {
 		return Save((Serializer*)file);
 	}
 
+	bool Tweeks::Save()
+	{
+		return Save(mCurrentSaveFileName);
+	}
+
 	bool Tweeks::Load(Deserializer* source)
 	{
 		if (source == nullptr)
@@ -82,8 +86,15 @@ namespace Urho3D {
 
 	bool Tweeks::Load(String filename)
 	{
+        mCurrentSaveFileName = filename;
+
+		if (!GSS<FileSystem>()->FileExists(filename))
+			return false;
+
 		SharedPtr<File> file = SharedPtr<File>(new File(context_, filename, FILE_READ));
-		return Load((Deserializer*)file);
+		bool s = Load((Deserializer*)file);
+
+		return s;
 	}
 
 	Urho3D::Tweek* Tweeks::GetTweek(String name /*= ""*/, String section /*= ""*/)
