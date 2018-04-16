@@ -1031,7 +1031,7 @@ void NavigationMesh::CollectGeometries(Vector<NavigationGeometryInfo>& geometryL
             continue;
 
         ShapeType type = shape->GetShapeType();
-        if ((type == SHAPE_BOX || type == SHAPE_TRIANGLEMESH || type == SHAPE_CONVEXHULL) && shape->GetCollisionShape())
+        if ((type == SHAPE_BOX || type == SHAPE_TRIANGLEMESH || type == SHAPE_CONVEXHULL) /*&& shape->GetCollisionShape()*/)
         {
             Matrix3x4 shapeTransform(shape->GetPosition(), shape->GetRotation(), shape->GetSize());
 
