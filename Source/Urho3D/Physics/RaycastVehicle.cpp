@@ -28,8 +28,6 @@
 #include "../IO/Log.h"
 #include "../Physics/RaycastVehicle.h"
 
-#include <Bullet/BulletDynamics/Vehicle/btRaycastVehicle.h>
-#include <Bullet/BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h>
 
 namespace Urho3D
 {
@@ -45,94 +43,94 @@ struct RaycastVehicleData
 {
     RaycastVehicleData()
     {
-        vehicleRayCaster_ = nullptr;
-        vehicle_ = nullptr;
+        //vehicleRayCaster_ = nullptr;
+        //vehicle_ = nullptr;
         added_ = false;
     }
 
     ~RaycastVehicleData()
     {
-        delete vehicleRayCaster_;
+        //delete vehicleRayCaster_;
 
-        vehicleRayCaster_ = nullptr;
-        if (vehicle_)
-        {
-            if (physWorld_ && added_)
-            {
-                btDynamicsWorld* pbtDynWorld = physWorld_->GetWorld();
-                if (pbtDynWorld)
-                    pbtDynWorld->removeAction(vehicle_);
-                added_ = false;
-            }
-            delete vehicle_;
-        }
-        vehicle_ = nullptr;
+        //vehicleRayCaster_ = nullptr;
+        //if (vehicle_)
+        //{
+        //    if (physWorld_ && added_)
+        //    {
+        //        btDynamicsWorld* pbtDynWorld = physWorld_->GetWorld();
+        //        if (pbtDynWorld)
+        //            pbtDynWorld->removeAction(vehicle_);
+        //        added_ = false;
+        //    }
+        //    delete vehicle_;
+        //}
+        //vehicle_ = nullptr;
     }
 
-    btRaycastVehicle* Get()
-    {
-        return vehicle_;
-    }
+    //btRaycastVehicle* Get()
+    //{
+    //    return vehicle_;
+    //}
 
     void Init(Scene* scene, RigidBody* body, bool enabled, const IntVector3& coordinateSystem)
     {
-        auto* pPhysWorld = scene->GetComponent<PhysicsWorld>();
-        btDynamicsWorld* pbtDynWorld = pPhysWorld->GetWorld();
-        if (!pbtDynWorld)
-            return;
+        //auto* pPhysWorld = scene->GetComponent<PhysicsWorld>();
+        //btDynamicsWorld* pbtDynWorld = pPhysWorld->GetWorld();
+        //if (!pbtDynWorld)
+        //    return;
 
-        // Delete old vehicle & action first
-        delete vehicleRayCaster_;
-        if (vehicle_)
-        {
-            if (added_)
-                pbtDynWorld->removeAction(vehicle_);
-            delete vehicle_;
-        }
+        //// Delete old vehicle & action first
+        //delete vehicleRayCaster_;
+        //if (vehicle_)
+        //{
+        //    if (added_)
+        //        pbtDynWorld->removeAction(vehicle_);
+        //    delete vehicle_;
+        //}
 
-        vehicleRayCaster_ = new btDefaultVehicleRaycaster(pbtDynWorld);
-        btRigidBody* bthullBody = body->GetBody();
-        vehicle_ = new btRaycastVehicle(tuning_, bthullBody, vehicleRayCaster_);
-        if (enabled)
-        {
-            pbtDynWorld->addAction(vehicle_);
-            added_ = true;
-        }
+        //vehicleRayCaster_ = new btDefaultVehicleRaycaster(pbtDynWorld);
+        //btRigidBody* bthullBody = body->GetBody();
+        //vehicle_ = new btRaycastVehicle(tuning_, bthullBody, vehicleRayCaster_);
+        //if (enabled)
+        //{
+        //    pbtDynWorld->addAction(vehicle_);
+        //    added_ = true;
+        //}
 
-        SetCoordinateSystem(coordinateSystem);
-        physWorld_ = pPhysWorld;
+        //SetCoordinateSystem(coordinateSystem);
+        //physWorld_ = pPhysWorld;
     }
 
     void SetCoordinateSystem(const IntVector3& coordinateSystem)
     {
-        if (vehicle_)
-            vehicle_->setCoordinateSystem(coordinateSystem.x_, coordinateSystem.y_, coordinateSystem.z_);
+        /*if (vehicle_)
+            vehicle_->setCoordinateSystem(coordinateSystem.x_, coordinateSystem.y_, coordinateSystem.z_);*/
     }
 
     void SetEnabled(bool enabled)
     {
-        if (!physWorld_ || !vehicle_)
-            return;
-        btDynamicsWorld* pbtDynWorld = physWorld_->GetWorld();
-        if (!pbtDynWorld)
-            return;
+        /* if (!physWorld_ || !vehicle_)
+             return;
+         btDynamicsWorld* pbtDynWorld = physWorld_->GetWorld();
+         if (!pbtDynWorld)
+             return;
 
-        if (enabled && !added_)
-        {
-            pbtDynWorld->addAction(vehicle_);
-            added_ = true;
-        }
-        else if (!enabled && added_)
-        {
-            pbtDynWorld->removeAction(vehicle_);
-            added_ = false;
-        }
+         if (enabled && !added_)
+         {
+             pbtDynWorld->addAction(vehicle_);
+             added_ = true;
+         }
+         else if (!enabled && added_)
+         {
+             pbtDynWorld->removeAction(vehicle_);
+             added_ = false;
+         }*/
     }
 
-    WeakPtr<PhysicsWorld> physWorld_;
-    btVehicleRaycaster* vehicleRayCaster_;
-    btRaycastVehicle* vehicle_;
-    btRaycastVehicle::btVehicleTuning tuning_;
+    /*   WeakPtr<PhysicsWorld> physWorld_;
+       btVehicleRaycaster* vehicleRayCaster_;
+       btRaycastVehicle* vehicle_;
+       btRaycastVehicle::btVehicleTuning tuning_;*/
     bool added_;
 };
 
@@ -199,81 +197,81 @@ void RaycastVehicle::OnSetEnabled()
 
 void RaycastVehicle::ApplyAttributes()
 {
-    int index = 0;
-    hullBody_ = node_->GetOrCreateComponent<RigidBody>();
-    Scene* scene = GetScene();
-    vehicleData_->Init(scene, hullBody_, IsEnabledEffective(), coordinateSystem_);
-    VariantVector& value = loadedWheelData_;
-    int numObjects = value[index++].GetInt();
-    int wheelIndex = 0;
-    origRotation_.Clear();
-    skidInfoCumulative_.Clear();
-    wheelSideSlipSpeed_.Clear();
+    /*  int index = 0;
+      hullBody_ = node_->GetOrCreateComponent<RigidBody>();
+      Scene* scene = GetScene();
+      vehicleData_->Init(scene, hullBody_, IsEnabledEffective(), coordinateSystem_);
+      VariantVector& value = loadedWheelData_;
+      int numObjects = value[index++].GetInt();
+      int wheelIndex = 0;
+      origRotation_.Clear();
+      skidInfoCumulative_.Clear();
+      wheelSideSlipSpeed_.Clear();
 
-    for (int i = 0; i < numObjects; i++)
-    {
-        int node_id = value[index++].GetInt();
-        Vector3 direction = value[index++].GetVector3();
-        Vector3 axle = value[index++].GetVector3();
-        float restLength = value[index++].GetFloat();
-        float radius = value[index++].GetFloat();
-        bool isFrontWheel = value[index++].GetBool();
-        float steering = value[index++].GetFloat();
-        Vector3 connectionPoint = value[index++].GetVector3();
-        Quaternion origRotation = value[index++].GetQuaternion();
-        float skidInfoC = value[index++].GetFloat();
-        float sideSlipSpeed = value[index++].GetFloat();
+      for (int i = 0; i < numObjects; i++)
+      {
+          int node_id = value[index++].GetInt();
+          Vector3 direction = value[index++].GetVector3();
+          Vector3 axle = value[index++].GetVector3();
+          float restLength = value[index++].GetFloat();
+          float radius = value[index++].GetFloat();
+          bool isFrontWheel = value[index++].GetBool();
+          float steering = value[index++].GetFloat();
+          Vector3 connectionPoint = value[index++].GetVector3();
+          Quaternion origRotation = value[index++].GetQuaternion();
+          float skidInfoC = value[index++].GetFloat();
+          float sideSlipSpeed = value[index++].GetFloat();
 
-        bool isContact = value[index++].GetBool();
-        Vector3 contactPosition = value[index++].GetVector3();
-        Vector3 contactNormal = value[index++].GetVector3();
-        float suspensionStiffness = value[index++].GetFloat();
-        float dampingRelaxation = value[index++].GetFloat();
-        float dampingCompression = value[index++].GetFloat();
-        float frictionSlip = value[index++].GetFloat();
-        float rollInfluence = value[index++].GetFloat();
-        float engineForce = value[index++].GetFloat();
-        float brake = value[index++].GetFloat();
-        float skidInfo = value[index++].GetFloat();
-        Node* wheelNode = GetScene()->GetNode(node_id);
-        if (!wheelNode)
-        {
-            URHO3D_LOGERROR("RaycastVehicle: Incorrect node id = " + String(node_id) + " index: " + String(index));
-            continue;
-        }
-        btRaycastVehicle* vehicle = vehicleData_->Get();
-        int id = GetNumWheels();
-        btVector3 connectionPointCS0(connectionPoint.x_, connectionPoint.y_, connectionPoint.z_);
-        btVector3 wheelDirectionCS0(direction.x_, direction.y_, direction.z_);
-        btVector3 wheelAxleCS(axle.x_, axle.y_, axle.z_);
-        btWheelInfo& wheel = vehicle->addWheel(connectionPointCS0,
-                                wheelDirectionCS0,
-                                wheelAxleCS,
-                                restLength,
-                                radius,
-                                vehicleData_->tuning_,
-                                isFrontWheel);
-        wheelNodes_.Push(wheelNode);
-        origRotation_.Push(origRotation);
-        skidInfoCumulative_.Push(skidInfoC);
-        wheelSideSlipSpeed_.Push(sideSlipSpeed);
-        SetSteeringValue(wheelIndex, steering);
-        wheel.m_raycastInfo.m_isInContact = isContact;
-        wheel.m_raycastInfo.m_contactNormalWS = btVector3(contactNormal.x_, contactNormal.y_, contactNormal.z_);
-        wheel.m_raycastInfo.m_contactPointWS = btVector3(contactPosition.x_, contactPosition.y_, contactPosition.z_);
-        wheel.m_suspensionStiffness = suspensionStiffness;
-        wheel.m_wheelsDampingRelaxation = dampingRelaxation;
-        wheel.m_wheelsDampingCompression = dampingCompression;
-        wheel.m_frictionSlip = frictionSlip;
-        wheel.m_rollInfluence = rollInfluence;
-        wheel.m_engineForce = engineForce;
-        wheel.m_brake = brake;
-        wheel.m_skidInfo = skidInfo;
-        wheelIndex++;
-    }
-    URHO3D_LOGDEBUG("maxSideSlipSpeed_ value: " + String(maxSideSlipSpeed_));
-    URHO3D_LOGDEBUG("loaded items: " + String(index));
-    URHO3D_LOGDEBUG("loaded wheels: " + String(GetNumWheels()));
+          bool isContact = value[index++].GetBool();
+          Vector3 contactPosition = value[index++].GetVector3();
+          Vector3 contactNormal = value[index++].GetVector3();
+          float suspensionStiffness = value[index++].GetFloat();
+          float dampingRelaxation = value[index++].GetFloat();
+          float dampingCompression = value[index++].GetFloat();
+          float frictionSlip = value[index++].GetFloat();
+          float rollInfluence = value[index++].GetFloat();
+          float engineForce = value[index++].GetFloat();
+          float brake = value[index++].GetFloat();
+          float skidInfo = value[index++].GetFloat();
+          Node* wheelNode = GetScene()->GetNode(node_id);
+          if (!wheelNode)
+          {
+              URHO3D_LOGERROR("RaycastVehicle: Incorrect node id = " + String(node_id) + " index: " + String(index));
+              continue;
+          }
+          btRaycastVehicle* vehicle = vehicleData_->Get();
+          int id = GetNumWheels();
+          btVector3 connectionPointCS0(connectionPoint.x_, connectionPoint.y_, connectionPoint.z_);
+          btVector3 wheelDirectionCS0(direction.x_, direction.y_, direction.z_);
+          btVector3 wheelAxleCS(axle.x_, axle.y_, axle.z_);
+          btWheelInfo& wheel = vehicle->addWheel(connectionPointCS0,
+                                  wheelDirectionCS0,
+                                  wheelAxleCS,
+                                  restLength,
+                                  radius,
+                                  vehicleData_->tuning_,
+                                  isFrontWheel);
+          wheelNodes_.Push(wheelNode);
+          origRotation_.Push(origRotation);
+          skidInfoCumulative_.Push(skidInfoC);
+          wheelSideSlipSpeed_.Push(sideSlipSpeed);
+          SetSteeringValue(wheelIndex, steering);
+          wheel.m_raycastInfo.m_isInContact = isContact;
+          wheel.m_raycastInfo.m_contactNormalWS = btVector3(contactNormal.x_, contactNormal.y_, contactNormal.z_);
+          wheel.m_raycastInfo.m_contactPointWS = btVector3(contactPosition.x_, contactPosition.y_, contactPosition.z_);
+          wheel.m_suspensionStiffness = suspensionStiffness;
+          wheel.m_wheelsDampingRelaxation = dampingRelaxation;
+          wheel.m_wheelsDampingCompression = dampingCompression;
+          wheel.m_frictionSlip = frictionSlip;
+          wheel.m_rollInfluence = rollInfluence;
+          wheel.m_engineForce = engineForce;
+          wheel.m_brake = brake;
+          wheel.m_skidInfo = skidInfo;
+          wheelIndex++;
+      }
+      URHO3D_LOGDEBUG("maxSideSlipSpeed_ value: " + String(maxSideSlipSpeed_));
+      URHO3D_LOGDEBUG("loaded items: " + String(index));
+      URHO3D_LOGDEBUG("loaded wheels: " + String(GetNumWheels()));*/
 }
 
 void RaycastVehicle::Init()
@@ -285,36 +283,36 @@ void RaycastVehicle::Init()
 
 void RaycastVehicle::FixedUpdate(float timeStep)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    for (int i = 0; i < GetNumWheels(); i++)
-    {
-        btWheelInfo whInfo = vehicle->getWheelInfo(i);
-        if (whInfo.m_engineForce != 0.0f || whInfo.m_steering != 0.0f)
-        {
-            hullBody_->Activate();
-            break;
-        }
-    }
+    /* btRaycastVehicle* vehicle = vehicleData_->Get();
+     for (int i = 0; i < GetNumWheels(); i++)
+     {
+         btWheelInfo whInfo = vehicle->getWheelInfo(i);
+         if (whInfo.m_engineForce != 0.0f || whInfo.m_steering != 0.0f)
+         {
+             hullBody_->Activate();
+             break;
+         }
+     }*/
 }
 
 void RaycastVehicle::PostUpdate(float timeStep)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    for (int i = 0; i < GetNumWheels(); i++)
-    {
-        vehicle->updateWheelTransform(i, true);
-        btTransform transform = vehicle->getWheelTransformWS(i);
-        Vector3 origin = ToVector3(transform.getOrigin());
-        Quaternion qRot = ToQuaternion(transform.getRotation());
-        Node* pWheel = wheelNodes_[i];
-        pWheel->SetWorldPosition(origin);
-        pWheel->SetWorldRotation(qRot * origRotation_[i]);
-    }
+    /*  btRaycastVehicle* vehicle = vehicleData_->Get();
+      for (int i = 0; i < GetNumWheels(); i++)
+      {
+          vehicle->updateWheelTransform(i, true);
+          btTransform transform = vehicle->getWheelTransformWS(i);
+          Vector3 origin = ToVector3(transform.getOrigin());
+          Quaternion qRot = ToQuaternion(transform.getRotation());
+          Node* pWheel = wheelNodes_[i];
+          pWheel->SetWorldPosition(origin);
+          pWheel->SetWorldRotation(qRot * origRotation_[i]);
+      }*/
 }
 
 void RaycastVehicle::FixedPostUpdate(float timeStep)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
+   /* btRaycastVehicle* vehicle = vehicleData_->Get();
     Vector3 velocity = hullBody_->GetLinearVelocity();
     for (int i = 0; i < GetNumWheels(); i++)
     {
@@ -349,7 +347,7 @@ void RaycastVehicle::FixedPostUpdate(float timeStep)
         {
             skidInfoCumulative_[i] = Clamp(skidInfoCumulative_[i], 0.0f, 0.89f);
         }
-    }
+    }*/
 }
 
 void RaycastVehicle::SetMaxSideSlipSpeed(float speed)
@@ -377,150 +375,161 @@ void RaycastVehicle::AddWheel(Node* wheelNode,
                                 float restLength, float wheelRadius,
                                 bool frontWheel)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    int id = GetNumWheels();
-    Vector3 connectionPoint = wheelNode->GetWorldPosition() - node_->GetWorldPosition();
-    btVector3 connectionPointCS0(connectionPoint.x_, connectionPoint.y_, connectionPoint.z_);
-    btVector3 wheelDirectionCS0(wheelDirection.x_, wheelDirection.y_, wheelDirection.z_);
-    btVector3 wheelAxleCS(wheelAxle.x_, wheelAxle.y_, wheelAxle.z_);
-    btWheelInfo& wheel = vehicle->addWheel(connectionPointCS0,
-                            wheelDirectionCS0,
-                            wheelAxleCS,
-                            restLength,
-                            wheelRadius,
-                            vehicleData_->tuning_,
-                            frontWheel);
+    /* btRaycastVehicle* vehicle = vehicleData_->Get();
+     int id = GetNumWheels();
+     Vector3 connectionPoint = wheelNode->GetWorldPosition() - node_->GetWorldPosition();
+     btVector3 connectionPointCS0(connectionPoint.x_, connectionPoint.y_, connectionPoint.z_);
+     btVector3 wheelDirectionCS0(wheelDirection.x_, wheelDirection.y_, wheelDirection.z_);
+     btVector3 wheelAxleCS(wheelAxle.x_, wheelAxle.y_, wheelAxle.z_);
+     btWheelInfo& wheel = vehicle->addWheel(connectionPointCS0,
+                             wheelDirectionCS0,
+                             wheelAxleCS,
+                             restLength,
+                             wheelRadius,
+                             vehicleData_->tuning_,
+                             frontWheel);
 
-    wheelNodes_.Push(wheelNode);
-    origRotation_.Push(wheelNode->GetWorldRotation());
-    skidInfoCumulative_.Push(1.0f);
-    wheelSideSlipSpeed_.Push(0.0f);
-    wheel.m_raycastInfo.m_isInContact = false;
+     wheelNodes_.Push(wheelNode);
+     origRotation_.Push(wheelNode->GetWorldRotation());
+     skidInfoCumulative_.Push(1.0f);
+     wheelSideSlipSpeed_.Push(0.0f);
+     wheel.m_raycastInfo.m_isInContact = false;*/
 }
 
 void RaycastVehicle::ResetSuspension()
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    vehicle->resetSuspension();
+    /* btRaycastVehicle* vehicle = vehicleData_->Get();
+     vehicle->resetSuspension();*/
 }
 
 void RaycastVehicle::UpdateWheelTransform(int wheel, bool interpolated)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    vehicle->updateWheelTransform(wheel, interpolated);
+    /* btRaycastVehicle* vehicle = vehicleData_->Get();
+     vehicle->updateWheelTransform(wheel, interpolated);*/
 }
 
 Vector3 RaycastVehicle::GetWheelPosition(int wheel)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btTransform transform = vehicle->getWheelTransformWS(wheel);
-    Vector3 origin = ToVector3(transform.getOrigin());
-    return origin;
+    /* btRaycastVehicle* vehicle = vehicleData_->Get();
+     btTransform transform = vehicle->getWheelTransformWS(wheel);
+     Vector3 origin = ToVector3(transform.getOrigin());
+     return origin;*/
+    return Vector3();
 }
 
 Quaternion RaycastVehicle::GetWheelRotation(int wheel)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    const btTransform& transform = vehicle->getWheelTransformWS(wheel);
-    Quaternion rotation = ToQuaternion(transform.getRotation());
-    return rotation;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //const btTransform& transform = vehicle->getWheelTransformWS(wheel);
+    //Quaternion rotation = ToQuaternion(transform.getRotation());
+    //return rotation;
+    return Quaternion();
 }
 
 Vector3 RaycastVehicle::GetWheelConnectionPoint(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
-    return ToVector3(whInfo.m_chassisConnectionPointCS);
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
+    //return ToVector3(whInfo.m_chassisConnectionPointCS);
+    return Vector3();
 }
 
 void RaycastVehicle::SetSteeringValue(int wheel, float steeringValue)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    vehicle->setSteeringValue(steeringValue, wheel);
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //vehicle->setSteeringValue(steeringValue, wheel);
 }
 
 float RaycastVehicle::GetSteeringValue(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
-    return whInfo.m_steering;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
+    //return whInfo.m_steering;
+    return 0.0f;
 }
 
 void RaycastVehicle::SetWheelSuspensionStiffness(int wheel, float stiffness)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    whInfo.m_suspensionStiffness = stiffness;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //whInfo.m_suspensionStiffness = stiffness;
 }
 
 float RaycastVehicle::GetWheelSuspensionStiffness(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
-    return whInfo.m_suspensionStiffness;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
+    //return whInfo.m_suspensionStiffness;
+    return 0.0f;
 }
 
 void RaycastVehicle::SetWheelDampingRelaxation(int wheel, float damping)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    whInfo.m_wheelsDampingRelaxation = damping;
+//     btRaycastVehicle* vehicle = vehicleData_->Get();
+//     btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+//     whInfo.m_wheelsDampingRelaxation = damping;
 }
 
 float RaycastVehicle::GetWheelDampingRelaxation(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
-    return whInfo.m_wheelsDampingRelaxation;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
+    //return whInfo.m_wheelsDampingRelaxation;
+    return 0.0f;
 }
 
 void RaycastVehicle::SetWheelDampingCompression(int wheel, float compression)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    whInfo.m_wheelsDampingCompression = compression;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //whInfo.m_wheelsDampingCompression = compression;
 }
 
 float RaycastVehicle::GetWheelDampingCompression(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
-    return whInfo.m_wheelsDampingCompression;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
+    //return whInfo.m_wheelsDampingCompression;
+    return 0.0f;
 }
 
 void RaycastVehicle::SetWheelFrictionSlip(int wheel, float slip)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    whInfo.m_frictionSlip = slip;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //whInfo.m_frictionSlip = slip;
 }
 
 float RaycastVehicle::GetWheelFrictionSlip(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
-    return whInfo.m_frictionSlip;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
+    //return whInfo.m_frictionSlip;
+
+    return 0.0f;
 }
 
 void RaycastVehicle::SetWheelRollInfluence(int wheel, float rollInfluence)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    whInfo.m_rollInfluence = rollInfluence;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //whInfo.m_rollInfluence = rollInfluence;
 }
 
 Vector3 RaycastVehicle::GetContactPosition(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    return ToVector3(whInfo.m_raycastInfo.m_contactPointWS);
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //return ToVector3(whInfo.m_raycastInfo.m_contactPointWS);
+    return Vector3();
 }
 
 Vector3 RaycastVehicle::GetContactNormal(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    return ToVector3(whInfo.m_raycastInfo.m_contactNormalWS);
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //return ToVector3(whInfo.m_raycastInfo.m_contactNormalWS);
+    return Vector3();
 }
 
 float RaycastVehicle::GetWheelSideSlipSpeed(int wheel) const
@@ -530,146 +539,159 @@ float RaycastVehicle::GetWheelSideSlipSpeed(int wheel) const
 
 float RaycastVehicle::GetWheelRollInfluence(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
-    return whInfo.m_rollInfluence;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
+    //return whInfo.m_rollInfluence;
+    return 0.0f;
 }
 
 void RaycastVehicle::SetWheelRadius(int wheel, float wheelRadius)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    whInfo.m_wheelsRadius = wheelRadius;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //whInfo.m_wheelsRadius = wheelRadius;
 }
 
 float RaycastVehicle::GetWheelRadius(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    return whInfo.m_wheelsRadius;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //return whInfo.m_wheelsRadius;
+    return 0.0f;
 }
 
 void RaycastVehicle::SetEngineForce(int wheel, float force)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    vehicle->applyEngineForce(force, wheel);
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //vehicle->applyEngineForce(force, wheel);
 }
 
 float RaycastVehicle::GetEngineForce(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
-    return whInfo.m_engineForce;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
+    //return whInfo.m_engineForce;
+    return 0.0f;
 }
 
 void RaycastVehicle::SetBrake(int wheel, float force)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    vehicle->setBrake(force, wheel);
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //vehicle->setBrake(force, wheel);
 }
 
 float RaycastVehicle::GetBrake(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
-    return whInfo.m_brake;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
+    //return whInfo.m_brake;
+    return 0.0f;
 }
 
 int RaycastVehicle::GetNumWheels() const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    return vehicle->getNumWheels();
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //return vehicle->getNumWheels();
+    return 0;
 }
 
 Node* RaycastVehicle::GetWheelNode(int wheel) const
 {
-    return wheelNodes_[wheel];
+    //return wheelNodes_[wheel];
+    return nullptr;
 }
 
 void RaycastVehicle::SetMaxSuspensionTravel(int wheel, float maxSuspensionTravel)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    whInfo.m_maxSuspensionTravelCm = maxSuspensionTravel;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //whInfo.m_maxSuspensionTravelCm = maxSuspensionTravel;
 }
 
 float RaycastVehicle::GetMaxSuspensionTravel(int wheel)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
-    return whInfo.m_maxSuspensionTravelCm;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
+    //return whInfo.m_maxSuspensionTravelCm;
+    return 0.0f;
 }
 
 void RaycastVehicle::SetWheelDirection(int wheel, Vector3 direction)
 {
-    btVector3 dir(direction.x_, direction.y_, direction.z_);
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    whInfo.m_wheelDirectionCS = dir;
+    //btVector3 dir(direction.x_, direction.y_, direction.z_);
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //whInfo.m_wheelDirectionCS = dir;
 }
 
 Vector3 RaycastVehicle::GetWheelDirection(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    return ToVector3(whInfo.m_wheelDirectionCS);
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //return ToVector3(whInfo.m_wheelDirectionCS);
+    return Vector3();
 }
 
 void RaycastVehicle::SetWheelAxle(int wheel, Vector3 axle)
 {
-    btVector3 ax(axle.x_, axle.y_, axle.z_);
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    whInfo.m_wheelAxleCS = ax;
+    //btVector3 ax(axle.x_, axle.y_, axle.z_);
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //whInfo.m_wheelAxleCS = ax;
 }
 
 Vector3 RaycastVehicle::GetWheelAxle(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    return ToVector3(whInfo.m_wheelAxleCS);
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //return ToVector3(whInfo.m_wheelAxleCS);
+    return Vector3();
 }
 
 void RaycastVehicle::SetWheelRestLength(int wheel, float length)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    whInfo.m_suspensionRestLength1 = length;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //whInfo.m_suspensionRestLength1 = length;
 }
 
 float RaycastVehicle::GetWheelRestLength(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    return whInfo.m_suspensionRestLength1;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //return whInfo.m_suspensionRestLength1;
+    return 0.0f;;
 }
 
 void RaycastVehicle::SetWheelSkidInfo(int wheel, float factor)
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    whInfo.m_skidInfo = factor;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //whInfo.m_skidInfo = factor;
 }
 
 float RaycastVehicle::GetWheelSkidInfo(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    return whInfo.m_skidInfo;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //return whInfo.m_skidInfo;
+    return 0.0f;
 }
 
 bool RaycastVehicle::IsFrontWheel(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
-    return whInfo.m_bIsFrontWheel;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo& whInfo = vehicle->getWheelInfo(wheel);
+    //return whInfo.m_bIsFrontWheel;
+    return false;
 }
 
 bool RaycastVehicle::WheelIsGrounded(int wheel) const
 {
-    btRaycastVehicle* vehicle = vehicleData_->Get();
-    btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
-    return whInfo.m_raycastInfo.m_isInContact;
+    //btRaycastVehicle* vehicle = vehicleData_->Get();
+    //btWheelInfo whInfo = vehicle->getWheelInfo(wheel);
+    //return whInfo.m_raycastInfo.m_isInContact;
+    return false;
 }
 
 void RaycastVehicle::SetInAirRPM(float rpm)

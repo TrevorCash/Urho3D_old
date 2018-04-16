@@ -25,10 +25,6 @@
 #include "../IO/VectorBuffer.h"
 #include "../Scene/Component.h"
 
-#include <Bullet/LinearMath/btMotionState.h>
-
-class btCompoundShape;
-class btRigidBody;
 
 namespace Urho3D
 {
@@ -47,7 +43,7 @@ enum CollisionEventMode
 };
 
 /// Physics rigid body component.
-class URHO3D_API RigidBody : public Component, public btMotionState
+class URHO3D_API RigidBody : public Component
 {
     URHO3D_OBJECT(RigidBody, Component);
 
@@ -64,9 +60,9 @@ public:
     /// Handle enabled/disabled state change.
     void OnSetEnabled() override;
     /// Return initial world transform to Bullet.
-    void getWorldTransform(btTransform& worldTrans) const override;
+   // void getWorldTransform(btTransform& worldTrans) const override;
     /// Update world transform from Bullet.
-    void setWorldTransform(const btTransform& worldTrans) override;
+   // void setWorldTransform(const btTransform& worldTrans) override;
     /// Visualize the component as debug geometry.
     void DrawDebugGeometry(DebugRenderer* debug, bool depthTest) override;
 
@@ -151,10 +147,10 @@ public:
     PhysicsWorld* GetPhysicsWorld() const { return physicsWorld_; }
 
     /// Return Bullet rigid body.
-    btRigidBody* GetBody() const { return body_.Get(); }
+    //btRigidBody* GetBody() const { return body_.Get(); }
 
     /// Return Bullet compound collision shape.
-    btCompoundShape* GetCompoundShape() const { return compoundShape_.Get(); }
+    //btCompoundShape* GetCompoundShape() const { return compoundShape_.Get(); }
 
     /// Return mass.
     float GetMass() const { return mass_; }
@@ -264,11 +260,11 @@ private:
     void MarkBodyDirty() { readdBody_ = true; }
 
     /// Bullet rigid body.
-    UniquePtr<btRigidBody> body_;
+    //UniquePtr<btRigidBody> body_;
     /// Bullet compound collision shape.
-    UniquePtr<btCompoundShape> compoundShape_;
+    //UniquePtr<btCompoundShape> compoundShape_;
     /// Compound collision shape with center of mass offset applied.
-    UniquePtr<btCompoundShape> shiftedCompoundShape_;
+    //UniquePtr<btCompoundShape> shiftedCompoundShape_;
     /// Physics world.
     WeakPtr<PhysicsWorld> physicsWorld_;
     /// Smoothed transform, if has one.

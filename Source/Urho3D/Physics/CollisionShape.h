@@ -27,13 +27,6 @@
 #include "../Math/Quaternion.h"
 #include "../Scene/Component.h"
 
-class btBvhTriangleMeshShape;
-class btCollisionShape;
-class btCompoundShape;
-class btGImpactMeshShape;
-class btTriangleMesh;
-
-struct btTriangleInfoMap;
 
 namespace Urho3D
 {
@@ -44,7 +37,7 @@ class Model;
 class PhysicsWorld;
 class RigidBody;
 class Terrain;
-class TriangleMeshInterface;
+//class TriangleMeshInterface;
 
 /// Collision shape type.
 enum ShapeType
@@ -79,11 +72,11 @@ struct TriangleMeshData : public CollisionGeometryData
     explicit TriangleMeshData(CustomGeometry* custom);
 
     /// Bullet triangle mesh interface.
-    UniquePtr<TriangleMeshInterface> meshInterface_;
+    //UniquePtr<TriangleMeshInterface> meshInterface_;
     /// Bullet triangle mesh collision shape.
-    UniquePtr<btBvhTriangleMeshShape> shape_;
-    /// Bullet triangle info map.
-    UniquePtr<btTriangleInfoMap> infoMap_;
+    //UniquePtr<btBvhTriangleMeshShape> shape_;
+    ///// Bullet triangle info map.
+    //UniquePtr<btTriangleInfoMap> infoMap_;
 };
 
 /// Triangle mesh geometry data.
@@ -95,7 +88,7 @@ struct GImpactMeshData : public CollisionGeometryData
     explicit GImpactMeshData(CustomGeometry* custom);
 
     /// Bullet triangle mesh interface.
-    UniquePtr<TriangleMeshInterface> meshInterface_;
+   // UniquePtr<TriangleMeshInterface> meshInterface_;
 };
 
 /// Convex hull geometry data.
@@ -207,7 +200,7 @@ public:
     void SetLodLevel(unsigned lodLevel);
 
     /// Return Bullet collision shape.
-    btCollisionShape* GetCollisionShape() const { return shape_.Get(); }
+    //btCollisionShape* GetCollisionShape() const { return shape_.Get(); }
 
     /// Return the shared geometry data.
     CollisionGeometryData* GetGeometryData() const { return geometry_; }
@@ -262,11 +255,11 @@ protected:
      * btCollisionShape. UpdateDerivedShape can then be overridden to create the required
      * btCollisionShape subclass.
      */
-    virtual btCollisionShape* UpdateDerivedShape(int shapeType, const Vector3& newWorldScale);
+    //virtual btCollisionShape* UpdateDerivedShape(int shapeType, const Vector3& newWorldScale);
 
 private:
     /// Find the parent rigid body component and return its compound collision shape.
-    btCompoundShape* GetParentCompoundShape();
+    //btCompoundShape* GetParentCompoundShape();
     /// Update the collision shape after attribute changes.
     void UpdateShape();
     /// Update cached geometry collision shape.
@@ -293,7 +286,7 @@ private:
     /// Shared geometry data.
     SharedPtr<CollisionGeometryData> geometry_;
     /// Bullet collision shape.
-    UniquePtr<btCollisionShape> shape_;
+    //UniquePtr<btCollisionShape> shape_;
     /// Collision shape type.
     ShapeType shapeType_;
     /// Offset position.

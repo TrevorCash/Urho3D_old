@@ -100,7 +100,7 @@ public:
     void Update(float timeStep);
 
 
-    /// Set maximum angular velocity for network replication.
+   /* /// Set maximum angular velocity for network replication.
     void SetMaxNetworkAngularVelocity(float velocity);
     /// Perform a physics world raycast and return all hits.
     void Raycast
@@ -127,7 +127,7 @@ public:
     void GetCollidingBodies(PODVector<RigidBody*>& result, const RigidBody* body);
 
     /// Return gravity.
-    Vector3 GetGravity() const;
+    Vector3 GetGravity() const;*/
 
  
 
