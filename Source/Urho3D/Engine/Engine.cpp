@@ -64,7 +64,12 @@
 #ifdef URHO3D_URHO2D
 #include "../Urho2D/Urho2D.h"
 #endif
+#if URHO3D_TASKS
 #include "../Core/Tasks.h"
+#endif
+#if URHO3D_CSHARP
+#include "../Script/ScriptSubsystem.h"
+#endif
 #include "../Engine/EngineEvents.h"
 
 #if defined(__EMSCRIPTEN__) && defined(URHO3D_TESTING)
@@ -139,6 +144,10 @@ Engine::Engine(Context* context) :
     context_->RegisterSubsystem(new UI(context_));
 #if URHO3D_TASKS
     context_->RegisterSubsystem(new Tasks(context_));
+#endif
+#if URHO3D_CSHARP
+    if (context_->GetScripts() == nullptr)
+        context_->RegisterSubsystem(new ScriptSubsystem(context_));
 #endif
 	context_->RegisterSubsystem(new FreeFunctions(context_));
     // Register object factories for libraries which are not automatically registered along with subsystem creation
@@ -778,8 +787,6 @@ void Engine::Update()
 
     // Logic post-update event
     SendEvent(E_POSTUPDATE, eventData);
-	
-
 }
 
 void Engine::Render()
@@ -820,14 +827,16 @@ void Engine::Render()
 	SendEvent(E_RENDERUPDATE, eventData);
 
 
+	// Post-render update event
+	SendEvent(E_POSTRENDERUPDATE, eventData);
+
+
     GetSubsystem<Renderer>()->Render();
     GetSubsystem<UI>()->Render();
     graphics->EndFrame();
 
 
 
-	// Post-render update event
-	SendEvent(E_POSTRENDERUPDATE, eventData);
 }
 
 VariantMap Engine::ParseParameters(const Vector<String>& arguments)
